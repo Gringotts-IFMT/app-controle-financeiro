@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 class ConfiguracoesUsuario {
   bool modoEscuro = false;
   String idioma = 'pt-BR';

@@ -1,3 +1,6 @@
+analyzer:
+  errors:
+    sort_child_properties_last: ignore
 include: package:flutter_lints/flutter.yaml
 
 linter:
