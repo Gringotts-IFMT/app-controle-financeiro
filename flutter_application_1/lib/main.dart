@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
+
+import 'providers/meta_economia_provider.dart';
+import 'providers/transacao_provider.dart';
 import 'screens/expense_screen.dart';
 import 'screens/income_screen.dart';
-// ignore: unused_import
-import 'models/transaction.dart';
-// ignore: unused_import
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'screens/home_screen.dart'; // Adicione esta linha
+import 'screens/metas_list_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,25 +30,90 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Controle Financeiro',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-        useMaterial3: true,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => TransacaoProvider()),
+        ChangeNotifierProvider(create: (_) => MetaEconomiaProvider()),
+      ],
+      child: MaterialApp(
+        title: 'Controle Financeiro',
+        theme: ThemeData(
+          primarySwatch: Colors.green,
+          useMaterial3: true,
+        ),
+        home: const MainNavigator(), // Mudança aqui
+        debugShowCheckedModeBanner: false,
       ),
-      home: const HomePage(),
     );
   }
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class MainNavigator extends StatefulWidget {
+  const MainNavigator({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<MainNavigator> createState() => _MainNavigatorState();
 }
 
-class _HomePageState extends State<HomePage>
+class _MainNavigatorState extends State<MainNavigator> {
+  int _currentIndex = 0;
+
+  // Lista de telas
+  final List<Widget> _screens = [
+    const HomeScreen(), // Tela nova com saldo e lista completa
+    const TabBarScreens(), // Suas telas antigas (Gastos/Ganhos)
+    const MetasListScreen(), // Tela de metas
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Carregar transações ao iniciar o app
+    Future.microtask(() {
+      Provider.of<TransacaoProvider>(context, listen: false)
+          .carregarTransacoes();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _screens[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Início',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list),
+            label: 'Categorias',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.savings),
+            label: 'Metas',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Suas telas antigas em uma classe separada
+class TabBarScreens extends StatefulWidget {
+  const TabBarScreens({super.key});
+
+  @override
+  State<TabBarScreens> createState() => _TabBarScreensState();
+}
+
+class _TabBarScreensState extends State<TabBarScreens>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
@@ -57,21 +124,21 @@ class _HomePageState extends State<HomePage>
   }
 
   @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Controle Financeiro'),
+        title: const Text('Gastos e Ganhos'),
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
-            Tab(
-              icon: Icon(Icons.arrow_downward),
-              text: 'Gastos',
-            ),
-            Tab(
-              icon: Icon(Icons.arrow_upward),
-              text: 'Ganhos',
-            ),
+            Tab(icon: Icon(Icons.arrow_downward), text: 'Gastos'),
+            Tab(icon: Icon(Icons.arrow_upward), text: 'Ganhos'),
           ],
         ),
       ),
@@ -83,11 +150,5 @@ class _HomePageState extends State<HomePage>
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 }

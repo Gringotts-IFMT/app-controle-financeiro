@@ -3,6 +3,7 @@ import '../models/transaction.dart';
 import '../services/database_service.dart';
 import '../widgets/transaction_form.dart';
 import '../widgets/transaction_list.dart';
+import '../enums/tipo_transacao.dart';
 
 class ExpenseScreen extends StatefulWidget {
   const ExpenseScreen({super.key});
@@ -31,7 +32,9 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
               description: description,
               category: category,
               date: date,
+              tipo: TipoTransacao.despesa,
               isExpense: true,
+              
             );
             _databaseService.addTransaction(expense);
             Navigator.pop(context);

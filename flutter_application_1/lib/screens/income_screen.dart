@@ -3,6 +3,7 @@ import '../models/transaction.dart';
 import '../services/database_service.dart';
 import '../widgets/transaction_form.dart';
 import '../widgets/transaction_list.dart';
+import '../enums/tipo_transacao.dart';
 
 class IncomeScreen extends StatefulWidget {
   const IncomeScreen({super.key});
@@ -32,6 +33,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
               category: category,
               date: date,
               isExpense: false,
+              tipo: TipoTransacao.receita,
             );
             _databaseService.addTransaction(income);
             Navigator.pop(context);

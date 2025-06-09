@@ -136,15 +136,4 @@ class MetaEconomia {
       required double valorMeta,
       required double valorAtual}) {}
 
-  static novaMeta(
-      {required String titulo,
-      required String descricao,
-      required double valorMeta,
-      required double valorAtual}) {}
-
-  static novaMeta(
-      {required String titulo,
-      required String descricao,
-      required double valorMeta,
-      required double valorAtual}) {}
 }
