@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'screens/expense_screen.dart';
 import 'screens/income_screen.dart';
-// ignore: unused_import
-import 'models/transaction.dart';
-// ignore: unused_import
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,6 +45,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  int _index = 0;
 
   @override
   void initState() {
@@ -59,27 +56,65 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Controle Financeiro'),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(
-              icon: Icon(Icons.arrow_downward),
-              text: 'Gastos',
+      appBar: _index == 0
+          ? AppBar(
+              centerTitle: true,
+              title: const Text('Controle Financeiro'),
+              bottom: TabBar(
+                controller: _tabController,
+                tabs: const [
+                  Tab(
+                    icon: Icon(Icons.arrow_downward),
+                    text: 'Gastos',
+                  ),
+                  Tab(
+                    icon: Icon(Icons.arrow_upward),
+                    text: 'Ganhos',
+                  ),
+                ],
+              ),
+            )
+          : AppBar(
+              title: Text(
+                _index == 1 ? 'Relatórios' : 'Perfil do Usuário',
+              ),
             ),
-            Tab(
-              icon: Icon(Icons.arrow_upward),
-              text: 'Ganhos',
+      body: _index == 0
+          ? TabBarView(
+              controller: _tabController,
+              children: const [
+                ExpenseScreen(),
+                IncomeScreen(),
+              ],
+            )
+          : Center(
+              child: Text(
+                _index == 1
+                    ? 'Tela de Relatórios (em construção)'
+                    : 'Tela de Perfil do Usuário (em construção)',
+                style: const TextStyle(fontSize: 18),
+              ),
             ),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: const [
-          ExpenseScreen(),
-          IncomeScreen(),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _index,
+        onDestinationSelected: (int newIndex) {
+          setState(() {
+            _index = newIndex;
+          });
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.bar_chart),
+            label: 'Relatórios',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person),
+            label: 'Perfil do Usuário',
+          ),
         ],
       ),
     );
