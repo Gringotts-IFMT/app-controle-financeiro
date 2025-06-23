@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'screens/expense_screen.dart';
 import 'screens/income_screen.dart';
+import 'screens/usuario_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +32,9 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const HomePage(),
+      routes: {
+        '/usuario': (context) => const UsuarioPage(),
+      },
     );
   }
 }
@@ -56,45 +60,8 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _index == 0
-          ? AppBar(
-              centerTitle: true,
-              title: const Text('Controle Financeiro'),
-              bottom: TabBar(
-                controller: _tabController,
-                tabs: const [
-                  Tab(
-                    icon: Icon(Icons.arrow_downward),
-                    text: 'Gastos',
-                  ),
-                  Tab(
-                    icon: Icon(Icons.arrow_upward),
-                    text: 'Ganhos',
-                  ),
-                ],
-              ),
-            )
-          : AppBar(
-              title: Text(
-                _index == 1 ? 'Relatórios' : 'Perfil do Usuário',
-              ),
-            ),
-      body: _index == 0
-          ? TabBarView(
-              controller: _tabController,
-              children: const [
-                ExpenseScreen(),
-                IncomeScreen(),
-              ],
-            )
-          : Center(
-              child: Text(
-                _index == 1
-                    ? 'Tela de Relatórios (em construção)'
-                    : 'Tela de Perfil do Usuário (em construção)',
-                style: const TextStyle(fontSize: 18),
-              ),
-            ),
+      appBar: _buildAppBar(),
+      body: _buildBody(),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (int newIndex) {
@@ -118,6 +85,58 @@ class _HomePageState extends State<HomePage>
         ],
       ),
     );
+  }
+
+  /// AppBar dinâmica
+  PreferredSizeWidget _buildAppBar() {
+    if (_index == 0) {
+      return AppBar(
+        centerTitle: true,
+        title: const Text('Controle Financeiro'),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(icon: Icon(Icons.arrow_downward), text: 'Gastos'),
+            Tab(icon: Icon(Icons.arrow_upward), text: 'Ganhos'),
+          ],
+        ),
+      );
+    } else {
+      return AppBar(
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            setState(() {
+              _index = 0;
+            });
+          },
+        ),
+        title: Text(_index == 1 ? 'Relatórios' : 'Perfil do Usuário'),
+      );
+    }
+  }
+
+  /// Corpo da tela baseado no índice
+  Widget _buildBody() {
+    if (_index == 0) {
+      return TabBarView(
+        controller: _tabController,
+        children: const [
+          ExpenseScreen(),
+          IncomeScreen(),
+        ],
+      );
+    } else if (_index == 1) {
+      return const Center(
+        child: Text(
+          'Tela de Relatórios (em construção)',
+          style: TextStyle(fontSize: 18),
+        ),
+      );
+    } else {
+      return const UsuarioPage(); // Agora exibe a tela real
+    }
   }
 
   @override
