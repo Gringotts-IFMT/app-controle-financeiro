@@ -1,4 +1,4 @@
-import 'dart:convert';
+// ignore_for_file: unnecessary_this, curly_braces_in_flow_control_structures
 
 class ConfiguracoesApp {
   bool notificacoesAtivas;

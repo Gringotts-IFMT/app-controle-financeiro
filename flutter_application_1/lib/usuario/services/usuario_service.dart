@@ -1,6 +1,4 @@
 import '../models/usuario.dart';
-import 'dart:convert';
-import 'package:flutter/material.dart';
 
 // Serviço para gerenciar usuários
 class UsuarioService {
