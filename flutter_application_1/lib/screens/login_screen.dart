@@ -1,4 +1,4 @@
-/*import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core_web/firebase_core_web.dart';
 import 'package:flutter/material.dart';
 
@@ -56,9 +56,9 @@ class _LoginScreenState extends State<LoginScreen> {
         } else {
           message = 'Erro ao fazer login. Tente novamente.';
         }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
       } finally {
         setState(() {
           _isLoading = false;
@@ -91,9 +91,9 @@ class _LoginScreenState extends State<LoginScreen> {
         } else {
           message = 'Erro ao criar conta. Tente novamente.';
         }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
       } finally {
         setState(() {
           _isLoading = false;
@@ -105,9 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login / Registro'),
-      ),
+      appBar: AppBar(title: const Text('Login / Registro')),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -141,24 +139,24 @@ class _LoginScreenState extends State<LoginScreen> {
                 _isLoading
                     ? const CircularProgressIndicator()
                     : Column(
-                        children: [
-                          ElevatedButton(
-                            onPressed: _signIn,
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: const Size(double.infinity, 50),
-                            ),
-                            child: const Text(
-                              'Entrar',
-                              style: TextStyle(fontSize: 18),
-                            ),
+                      children: [
+                        ElevatedButton(
+                          onPressed: _signIn,
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 50),
                           ),
-                          const SizedBox(height: 15),
-                          TextButton(
-                            onPressed: _signUp,
-                            child: const Text('Não tem uma conta? Registre-se'),
+                          child: const Text(
+                            'Entrar',
+                            style: TextStyle(fontSize: 18),
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: 15),
+                        TextButton(
+                          onPressed: _signUp,
+                          child: const Text('Não tem uma conta? Registre-se'),
+                        ),
+                      ],
+                    ),
               ],
             ),
           ),
@@ -166,4 +164,4 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-}*/
+}

@@ -1,5 +1,4 @@
-/*import 'package:controle_financeiro/Models/usuario.dart';
-import '../models/usuario.dart';
+import 'package:controle_financeiro/Models/usuario.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 
@@ -39,4 +38,4 @@ class UsuarioService {
   }
 
   List<Usuario> listarUsuarios() => _usuarios;
-}*/
+}

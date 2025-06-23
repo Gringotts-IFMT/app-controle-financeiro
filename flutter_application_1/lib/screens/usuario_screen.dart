@@ -32,4 +32,6 @@ class UsuarioPage extends StatelessWidget {
       ),
     );
   }
+
+  autenticar(String email, String password) {}
 }
