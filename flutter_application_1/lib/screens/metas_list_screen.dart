@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/meta_economia_provider.dart';
-import '../Models/meta_economia.dart';
+import '../models/meta_economia.dart';
 import '../enums/status_meta_economia.dart';
 import 'package:intl/intl.dart';
+import 'package:controle_financeiro/screens/meta_form_screen.dart'; // Importa a tela do formulário de meta
+import 'package:firebase_auth/firebase_auth.dart'; // <--- Adicionado: Para obter o userId
 
 class MetasListScreen extends StatefulWidget {
   const MetasListScreen({Key? key}) : super(key: key);
@@ -24,13 +26,13 @@ class _MetasListScreenState extends State<MetasListScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
-    
-    // Inicializar dados
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = Provider.of<MetaEconomiaProvider>(context, listen: false);
-      provider.inicializarListener(); // Para usar stream
-      // ou provider.carregarMetas(); // Para carregar manualmente
-    });
+
+    // REMOVIDO: A inicialização do listener do provider deve ser feita no main.dart
+    // APÓS o login do usuário, para garantir que o userId esteja disponível.
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   final provider = Provider.of<MetaEconomiaProvider>(context, listen: false);
+    //   provider.inicializarListener();
+    // });
   }
 
   @override
@@ -68,7 +70,7 @@ class _MetasListScreenState extends State<MetasListScreen>
       ),
       body: Consumer<MetaEconomiaProvider>(
         builder: (context, provider, child) {
-          if (provider.isLoading) {
+          if (provider.isLoading && provider.metas.isEmpty) { // Mostra loading apenas se estiver carregando e a lista estiver vazia
             return const Center(
               child: CircularProgressIndicator(),
             );
@@ -104,9 +106,40 @@ class _MetasListScreenState extends State<MetasListScreen>
                   ElevatedButton(
                     onPressed: () {
                       provider.limparErro();
-                      provider.carregarMetas();
+                      provider.carregarMetas(); // Tenta recarregar
                     },
                     child: const Text('Tentar Novamente'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          // Se não há loading, não há erro, mas a lista está vazia
+          if (provider.metas.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.savings_outlined,
+                    size: 64,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Nenhuma meta encontrada',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Adicione uma nova meta para começar!',
+                    style: TextStyle(
+                      color: Colors.grey[500],
+                    ),
                   ),
                 ],
               ),
@@ -136,9 +169,8 @@ class _MetasListScreenState extends State<MetasListScreen>
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // Navegar para tela de cadastro
-          // Navigator.pushNamed(context, '/meta-form');
-          _mostrarDialogoCadastro();
+          // Navegar para tela de cadastro de nova meta
+          _mostrarFormularioCadastroMeta(); // Chamando a função de navegação correta
         },
         backgroundColor: Colors.green[600],
         icon: const Icon(Icons.add, color: Colors.white),
@@ -233,6 +265,8 @@ class _MetasListScreenState extends State<MetasListScreen>
 
   Widget _buildMetasList(List<MetaEconomia> metas) {
     if (metas.isEmpty) {
+      // Este caso já é tratado pelo Consumer se provider.metas.isEmpty no build principal
+      // mas mantido para clareza dentro das abas
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -412,8 +446,9 @@ class _MetasListScreenState extends State<MetasListScreen>
                 ],
               ),
               
-              // Botões de ação
               const SizedBox(height: 12),
+              
+              // Botões de ação
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -511,11 +546,16 @@ class _MetasListScreenState extends State<MetasListScreen>
   void _mostrarDetalhes(MetaEconomia meta) {
     // Implementar navegação para detalhes
     print('Mostrar detalhes da meta: ${meta.titulo}');
+    // Exemplo: Navigator.of(context).push(MaterialPageRoute(builder: (context) => MetaDetailScreen(meta: meta)));
   }
 
-  void _mostrarDialogoCadastro() {
-    // Implementar diálogo ou navegação para cadastro
+  void _mostrarFormularioCadastroMeta() { // Renomeada para ser mais clara
     print('Mostrar formulário de cadastro');
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const MetaFormScreen(), // Para adicionar nova meta
+      ),
+    );
   }
 
   void _adicionarValor(MetaEconomia meta) {
@@ -526,8 +566,13 @@ class _MetasListScreenState extends State<MetasListScreen>
   }
 
   void _editarMeta(MetaEconomia meta) {
-    // Implementar edição
     print('Editar meta: ${meta.titulo}');
+    // NAVEGAR PARA A TELA DE EDIÇÃO PASSANDO A META
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => MetaFormScreen(meta: meta), // Passa a meta para o formulário
+      ),
+    );
   }
 
   void _executarAcao(String acao, MetaEconomia meta) async {
@@ -561,7 +606,7 @@ class _MetasListScreenState extends State<MetasListScreen>
             onPressed: () async {
               Navigator.pop(context);
               final provider = Provider.of<MetaEconomiaProvider>(context, listen: false);
-              await provider.excluirMeta(meta.id!);
+              await provider.excluirMeta(meta.id!); // O provider já tem o userId interno
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Excluir'),
@@ -634,7 +679,7 @@ class _AdicionarValorDialogState extends State<_AdicionarValorDialog> {
 
     if (valor == null || valor <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Digite um valor válido')),
+        const SnackBar(content: Text('Digite um valor válido'), backgroundColor: Colors.red), // Adicionado cor para erro
       );
       return;
     }
@@ -644,6 +689,7 @@ class _AdicionarValorDialogState extends State<_AdicionarValorDialog> {
     final provider = Provider.of<MetaEconomiaProvider>(context, listen: false);
     final novoValor = widget.meta.valorAtual + valor;
     
+    // CHAMADA CORRETA: O provider já obtém o userId internamente
     final sucesso = await provider.atualizarValorMeta(widget.meta.id!, novoValor);
 
     setState(() => _isLoading = false);
@@ -651,7 +697,7 @@ class _AdicionarValorDialogState extends State<_AdicionarValorDialog> {
     if (sucesso) {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Valor adicionado com sucesso!'),
           backgroundColor: Colors.green,
         ),
@@ -659,7 +705,7 @@ class _AdicionarValorDialogState extends State<_AdicionarValorDialog> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Erro ao adicionar valor'),
+          content: Text('Erro ao adicionar valor. Verifique sua conexão e login.'), // Mensagem mais útil
           backgroundColor: Colors.red,
         ),
       );

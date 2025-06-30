@@ -50,7 +50,7 @@ class TransactionList extends StatelessWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.delete),
-                  onPressed: () => onDelete(transaction.id),
+                  onPressed: () => onDelete(transaction.id!),
                 ),
               ],
             ),

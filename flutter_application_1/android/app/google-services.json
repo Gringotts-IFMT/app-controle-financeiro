@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "375462470587",
+    "project_id": "voltaic-racer-230700",
+    "storage_bucket": "voltaic-racer-230700.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:375462470587:android:1a4549623b53fc1ef19a9e",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "375462470587-7ld8r4p4glkqhlspt3ah45dqjnknqf1s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPWAbEna58zLDbulcs5cdX2LfwEtGjNNs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "375462470587-0bijiga47a24lr5tl42he9k9hu1s8j9d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
