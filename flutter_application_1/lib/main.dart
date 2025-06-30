@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'screens/expense_screen.dart';
 import 'screens/income_screen.dart';
+import 'screens/Categoria/screen.categoria.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -60,6 +61,7 @@ class _HomePageState extends State<HomePage>
           ? AppBar(
               centerTitle: true,
               title: const Text('Controle Financeiro'),
+              actions: [],
               bottom: TabBar(
                 controller: _tabController,
                 tabs: const [
@@ -101,6 +103,15 @@ class _HomePageState extends State<HomePage>
           setState(() {
             _index = newIndex;
           });
+          // Se clicar no botão de categoria (índice 3), abre a tela de categorias
+          if (newIndex == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CategoriaScreen(),
+              ),
+            );
+          }
         },
         destinations: const [
           NavigationDestination(
@@ -114,6 +125,10 @@ class _HomePageState extends State<HomePage>
           NavigationDestination(
             icon: Icon(Icons.person),
             label: 'Perfil do Usuário',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.category),
+            label: 'Categorias',
           ),
         ],
       ),
