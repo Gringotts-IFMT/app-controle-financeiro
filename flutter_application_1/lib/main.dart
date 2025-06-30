@@ -137,6 +137,15 @@ class _HomePageState extends State<HomePage>
           setState(() {
             _index = newIndex;
           });
+          // Se clicar no botão de categoria (índice 3), abre a tela de categorias
+          if (newIndex == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CategoriaScreen(),
+              ),
+            );
+          }
         },
         destinations: const [
           NavigationDestination(
