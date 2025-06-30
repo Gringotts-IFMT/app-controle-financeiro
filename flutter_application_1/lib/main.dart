@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'screens/expense_screen.dart';
 import 'screens/income_screen.dart';
+import 'screens/Categoria/screen.categoria.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,14 +54,68 @@ class _HomePageState extends State<HomePage>
     _tabController = TabController(length: 2, vsync: this);
   }
 
+  // Função para retornar o título da AppBar baseado no índice
+  String _getAppBarTitle() {
+    switch (_index) {
+      case 0:
+        return 'Controle Financeiro';
+      case 1:
+        return 'Relatórios';
+      case 2:
+        return 'Perfil do Usuário';
+      case 3:
+        return 'Categorias';
+      default:
+        return 'Controle Financeiro';
+    }
+  }
+
+  // Função para retornar o corpo da tela baseado no índice
+  Widget _getBody() {
+    switch (_index) {
+      case 0:
+        return TabBarView(
+          controller: _tabController,
+          children: const [
+            ExpenseScreen(),
+            IncomeScreen(),
+          ],
+        );
+      case 1:
+        return const Center(
+          child: Text(
+            'Tela de Relatórios (em construção)',
+            style: TextStyle(fontSize: 18),
+          ),
+        );
+      case 2:
+        return const Center(
+          child: Text(
+            'Tela de Perfil do Usuário (em construção)',
+            style: TextStyle(fontSize: 18),
+          ),
+        );
+      case 3:
+        return const CategoriaScreen(); // Aqui é onde sua tela de categoria será exibida
+      default:
+        return const Center(
+          child: Text(
+            'Tela não encontrada',
+            style: TextStyle(fontSize: 18),
+          ),
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _index == 0
-          ? AppBar(
-              centerTitle: true,
-              title: const Text('Controle Financeiro'),
-              bottom: TabBar(
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text(_getAppBarTitle()),
+        // Só mostra as abas quando estiver na tela Home (índice 0)
+        bottom: _index == 0
+            ? TabBar(
                 controller: _tabController,
                 tabs: const [
                   Tab(
@@ -72,29 +127,10 @@ class _HomePageState extends State<HomePage>
                     text: 'Ganhos',
                   ),
                 ],
-              ),
-            )
-          : AppBar(
-              title: Text(
-                _index == 1 ? 'Relatórios' : 'Perfil do Usuário',
-              ),
-            ),
-      body: _index == 0
-          ? TabBarView(
-              controller: _tabController,
-              children: const [
-                ExpenseScreen(),
-                IncomeScreen(),
-              ],
-            )
-          : Center(
-              child: Text(
-                _index == 1
-                    ? 'Tela de Relatórios (em construção)'
-                    : 'Tela de Perfil do Usuário (em construção)',
-                style: const TextStyle(fontSize: 18),
-              ),
-            ),
+              )
+            : null,
+      ),
+      body: _getBody(),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (int newIndex) {
@@ -114,6 +150,10 @@ class _HomePageState extends State<HomePage>
           NavigationDestination(
             icon: Icon(Icons.person),
             label: 'Perfil do Usuário',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.category),
+            label: 'Categorias',
           ),
         ],
       ),
