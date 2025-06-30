@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ConfiguracoesApp {
   bool notificacoesAtivas;
@@ -40,8 +40,8 @@ class Usuario {
   }
 
   bool alterarSenha(String senhaAtual, String novaSenha) {
-    if (this.senha == senhaAtual) {
-      this.senha = novaSenha;
+    if (senha == senhaAtual) {
+      senha = novaSenha;
       return true;
     }
     return false;
@@ -49,8 +49,9 @@ class Usuario {
 
   bool editarPerfil(Map<String, dynamic> dadosPerfil) {
     if (dadosPerfil.containsKey('nome')) nome = dadosPerfil['nome'];
-    if (dadosPerfil.containsKey('fotoPerfil'))
+    if (dadosPerfil.containsKey('fotoPerfil')) {
       fotoPerfil = dadosPerfil['fotoPerfil'];
+    }
     return true;
   }
 
@@ -58,7 +59,36 @@ class Usuario {
 
   bool definirMetaEconomia(double valor, int mes) {
     // Simulação: apenas imprime a meta
-    print('Meta definida: $valor para o mês $mes');
+    print(
+        'Meta destatic Future<Usuario?> fromFirestore(Map<String, dynamic> data, String id) {}finida: $valor para id mês $mes');
     return true;
+  }
+
+  //
+  static Future<Usuario?> fromFirestoreData(
+      Map<String, dynamic> data, String id) async {
+        return null;
+      }
+
+  factory Usuario.fromFirestore(
+      Map<String, dynamic> firestoreData, String uid) {
+    // Certifique-se de que 'saldoAtual' é tratado como num para double, e 'configuracoes' é acessado com segurança
+    return Usuario(
+      id: int.tryParse(uid.hashCode.toString()) ??
+          0, // Convertendo UID para int, use 0 como fallback
+      nome: firestoreData['nome'] ?? 'Nome não disponível',
+      email: firestoreData['email'] ?? '',
+      senha: '', // Senha nunca deve ser lida do Firestore
+      dataCriacaoConta:
+          (firestoreData['dataCriacaoConta'] as Timestamp).toDate(),
+      ultimoAcesso: (firestoreData['ultimoAcesso'] as Timestamp).toDate(),
+      saldoAtual: (firestoreData['saldoAtual'] as num?)?.toDouble() ?? 0.0,
+      fotoPerfil: firestoreData['fotoPerfil'],
+      configuracoes: ConfiguracoesApp(
+        notificacoesAtivas:
+            firestoreData['configuracoes']?['notificacoesAtivas'] ?? true,
+        idioma: firestoreData['configuracoes']?['idioma'] ?? 'pt',
+      ),
+    );
   }
 }
