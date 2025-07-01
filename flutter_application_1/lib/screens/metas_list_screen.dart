@@ -5,7 +5,7 @@ import '../models/meta_economia.dart';
 import '../enums/status_meta_economia.dart';
 import 'package:intl/intl.dart';
 import 'package:controle_financeiro/screens/meta_form_screen.dart'; // Importa a tela do formulário de meta
-import 'package:firebase_auth/firebase_auth.dart'; // <--- Adicionado: Para obter o userId
+// import 'package:firebase_auth/firebase_auth.dart'; // <--- Adicionado: Para obter o userId
 
 class MetasListScreen extends StatefulWidget {
   const MetasListScreen({Key? key}) : super(key: key);
@@ -70,7 +70,8 @@ class _MetasListScreenState extends State<MetasListScreen>
       ),
       body: Consumer<MetaEconomiaProvider>(
         builder: (context, provider, child) {
-          if (provider.isLoading && provider.metas.isEmpty) { // Mostra loading apenas se estiver carregando e a lista estiver vazia
+          if (provider.isLoading && provider.metas.isEmpty) {
+            // Mostra loading apenas se estiver carregando e a lista estiver vazia
             return const Center(
               child: CircularProgressIndicator(),
             );
@@ -150,7 +151,7 @@ class _MetasListScreenState extends State<MetasListScreen>
             children: [
               // Card de Resumo
               _buildResumoCard(provider),
-              
+
               // Lista de Metas
               Expanded(
                 child: TabBarView(
@@ -380,9 +381,9 @@ class _MetasListScreenState extends State<MetasListScreen>
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 12),
-              
+
               // Progresso
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -403,9 +404,9 @@ class _MetasListScreenState extends State<MetasListScreen>
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               // Barra de progresso
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
@@ -418,9 +419,9 @@ class _MetasListScreenState extends State<MetasListScreen>
                   minHeight: 8,
                 ),
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               // Informações adicionais
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -440,14 +441,16 @@ class _MetasListScreenState extends State<MetasListScreen>
                       style: TextStyle(
                         color: meta.metaVencida ? Colors.red : Colors.grey[600],
                         fontSize: 12,
-                        fontWeight: meta.metaVencida ? FontWeight.w500 : FontWeight.normal,
+                        fontWeight: meta.metaVencida
+                            ? FontWeight.w500
+                            : FontWeight.normal,
                       ),
                     ),
                 ],
               ),
-              
+
               const SizedBox(height: 12),
-              
+
               // Botões de ação
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -501,7 +504,8 @@ class _MetasListScreenState extends State<MetasListScreen>
                           children: [
                             Icon(Icons.delete, size: 16, color: Colors.red),
                             SizedBox(width: 8),
-                            Text('Excluir', style: TextStyle(color: Colors.red)),
+                            Text('Excluir',
+                                style: TextStyle(color: Colors.red)),
                           ],
                         ),
                       ),
@@ -549,11 +553,13 @@ class _MetasListScreenState extends State<MetasListScreen>
     // Exemplo: Navigator.of(context).push(MaterialPageRoute(builder: (context) => MetaDetailScreen(meta: meta)));
   }
 
-  void _mostrarFormularioCadastroMeta() { // Renomeada para ser mais clara
+  void _mostrarFormularioCadastroMeta() {
+    // Renomeada para ser mais clara
     print('Mostrar formulário de cadastro');
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const MetaFormScreen(), // Para adicionar nova meta
+        builder: (context) =>
+            const MetaFormScreen(), // Para adicionar nova meta
       ),
     );
   }
@@ -570,14 +576,15 @@ class _MetasListScreenState extends State<MetasListScreen>
     // NAVEGAR PARA A TELA DE EDIÇÃO PASSANDO A META
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => MetaFormScreen(meta: meta), // Passa a meta para o formulário
+        builder: (context) =>
+            MetaFormScreen(meta: meta), // Passa a meta para o formulário
       ),
     );
   }
 
   void _executarAcao(String acao, MetaEconomia meta) async {
     final provider = Provider.of<MetaEconomiaProvider>(context, listen: false);
-    
+
     switch (acao) {
       case 'pausar':
         await provider.pausarMeta(meta.id!);
@@ -596,7 +603,8 @@ class _MetasListScreenState extends State<MetasListScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Confirmar Exclusão'),
-        content: Text('Tem certeza que deseja excluir a meta "${meta.titulo}"?'),
+        content:
+            Text('Tem certeza que deseja excluir a meta "${meta.titulo}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -605,8 +613,10 @@ class _MetasListScreenState extends State<MetasListScreen>
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              final provider = Provider.of<MetaEconomiaProvider>(context, listen: false);
-              await provider.excluirMeta(meta.id!); // O provider já tem o userId interno
+              final provider =
+                  Provider.of<MetaEconomiaProvider>(context, listen: false);
+              await provider
+                  .excluirMeta(meta.id!); // O provider já tem o userId interno
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Excluir'),
@@ -679,7 +689,9 @@ class _AdicionarValorDialogState extends State<_AdicionarValorDialog> {
 
     if (valor == null || valor <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Digite um valor válido'), backgroundColor: Colors.red), // Adicionado cor para erro
+        const SnackBar(
+            content: Text('Digite um valor válido'),
+            backgroundColor: Colors.red), // Adicionado cor para erro
       );
       return;
     }
@@ -688,9 +700,10 @@ class _AdicionarValorDialogState extends State<_AdicionarValorDialog> {
 
     final provider = Provider.of<MetaEconomiaProvider>(context, listen: false);
     final novoValor = widget.meta.valorAtual + valor;
-    
+
     // CHAMADA CORRETA: O provider já obtém o userId internamente
-    final sucesso = await provider.atualizarValorMeta(widget.meta.id!, novoValor);
+    final sucesso =
+        await provider.atualizarValorMeta(widget.meta.id!, novoValor);
 
     setState(() => _isLoading = false);
 
@@ -705,7 +718,8 @@ class _AdicionarValorDialogState extends State<_AdicionarValorDialog> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Erro ao adicionar valor. Verifique sua conexão e login.'), // Mensagem mais útil
+          content: Text(
+              'Erro ao adicionar valor. Verifique sua conexão e login.'), // Mensagem mais útil
           backgroundColor: Colors.red,
         ),
       );

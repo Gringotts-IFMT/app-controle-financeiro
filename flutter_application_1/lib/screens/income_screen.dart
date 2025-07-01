@@ -2,13 +2,13 @@ import 'package:controle_financeiro/providers/transacao_provider.dart';
 import 'package:controle_financeiro/screens/transacao_form_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Importar FirebaseAuth
+// import 'package:firebase_auth/firebase_auth.dart'; // Importar FirebaseAuth
 
 import '../models/transaction.dart';
-import '../services/database_service.dart';
-import '../widgets/transaction_form.dart';
+// import '../services/database_service.dart';
+// import '../widgets/transaction_form.dart';
 import '../widgets/transaction_list.dart';
-import '../enums/tipo_transacao.dart';
+// import '../enums/tipo_transacao.dart';
 
 class IncomeScreen extends StatefulWidget {
   const IncomeScreen({super.key}); // Construtor constante
@@ -21,11 +21,14 @@ class _IncomeScreenState extends State<IncomeScreen> {
   // Remova _databaseService
   // final DatabaseService _databaseService = DatabaseService();
 
-  void _showAddIncomeForm() { // Renomeado para claridade
+  void _showAddIncomeForm() {
+    // Renomeado para claridade
     final provider = Provider.of<TransacaoProvider>(context, listen: false);
     if (provider.currentUserId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, faça login para adicionar transações.'), backgroundColor: Colors.red),
+        const SnackBar(
+            content: Text('Por favor, faça login para adicionar transações.'),
+            backgroundColor: Colors.red),
       );
       return;
     }
@@ -39,7 +42,8 @@ class _IncomeScreenState extends State<IncomeScreen> {
         ),
         // Passa isExpense para o formulário se ele for lidar com ambos os tipos
         // Se TransacaoFormScreen tem RadioListTile, pode ser const TransacaoFormScreen()
-        child: const TransacaoFormScreen(), // Assuming TransacaoFormScreen handles type selection
+        child:
+            const TransacaoFormScreen(), // Assuming TransacaoFormScreen handles type selection
       ),
     );
   }
@@ -67,7 +71,8 @@ class _IncomeScreenState extends State<IncomeScreen> {
         children: [
           Expanded(
             child: StreamBuilder<List<FinancialTransaction>>(
-              stream: provider.getTransactionsStream(false), // Passa false para receitas
+              stream: provider
+                  .getTransactionsStream(false), // Passa false para receitas
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -75,14 +80,17 @@ class _IncomeScreenState extends State<IncomeScreen> {
 
                 if (snapshot.hasError) {
                   print('Erro no StreamBuilder de Ganhos: ${snapshot.error}');
-                  return Center(child: Text('Erro ao carregar ganhos: ${snapshot.error}'));
+                  return Center(
+                      child:
+                          Text('Erro ao carregar ganhos: ${snapshot.error}'));
                 }
 
                 final incomes = snapshot.data ?? [];
 
                 if (incomes.isEmpty) {
                   return const Center(
-                    child: Text('Nenhum ganho registrado ainda.\nClique no "+" para adicionar um novo.'),
+                    child: Text(
+                        'Nenhum ganho registrado ainda.\nClique no "+" para adicionar um novo.'),
                   );
                 }
 
@@ -93,17 +101,25 @@ class _IncomeScreenState extends State<IncomeScreen> {
                       bool sucesso = await provider.removerTransacao(id);
                       if (sucesso) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Ganho excluído com sucesso!'), backgroundColor: Colors.green),
+                          const SnackBar(
+                              content: Text('Ganho excluído com sucesso!'),
+                              backgroundColor: Colors.green),
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(provider.erro ?? 'Erro ao excluir ganho.'), backgroundColor: Colors.red),
+                          SnackBar(
+                              content: Text(
+                                  provider.erro ?? 'Erro ao excluir ganho.'),
+                              backgroundColor: Colors.red),
                         );
                       }
                     } catch (e) {
                       print('Erro inesperado ao excluir ganho: $e');
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Erro inesperado ao excluir ganho: ${e.toString()}'), backgroundColor: Colors.red),
+                        SnackBar(
+                            content: Text(
+                                'Erro inesperado ao excluir ganho: ${e.toString()}'),
+                            backgroundColor: Colors.red),
                       );
                     }
                   },

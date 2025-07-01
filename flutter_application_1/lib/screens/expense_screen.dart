@@ -1,14 +1,16 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:controle_financeiro/providers/transacao_provider.dart';
 import 'package:controle_financeiro/screens/transacao_form_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/transaction.dart';
-import '../services/database_service.dart'; // Certifique-se de que este import está correto
-import '../widgets/transaction_form.dart';
+// import '../services/database_service.dart'; // Certifique-se de que este import está correto
+// import '../widgets/transaction_form.dart';
 import '../widgets/transaction_list.dart';
-import '../enums/tipo_transacao.dart';
+// import '../enums/tipo_transacao.dart';
 
 class ExpenseScreen extends StatefulWidget {
   const ExpenseScreen({super.key}); // Construtor constante
@@ -25,7 +27,9 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
     final provider = Provider.of<TransacaoProvider>(context, listen: false);
     if (provider.currentUserId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, faça login para adicionar transações.'), backgroundColor: Colors.red),
+        const SnackBar(
+            content: Text('Por favor, faça login para adicionar transações.'),
+            backgroundColor: Colors.red),
       );
       return;
     }
@@ -39,7 +43,8 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
         ),
         // Passa isExpense para o formulário se ele for lidar com ambos os tipos
         // Se TransacaoFormScreen tem RadioListTile, pode ser const TransacaoFormScreen()
-        child: const TransacaoFormScreen(), // Assuming TransacaoFormScreen handles type selection
+        child:
+            const TransacaoFormScreen(), // Assuming TransacaoFormScreen handles type selection
       ),
     );
   }
@@ -68,7 +73,8 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
         children: [
           Expanded(
             child: StreamBuilder<List<FinancialTransaction>>(
-              stream: provider.getTransactionsStream(true), // Passa true para despesas
+              stream: provider
+                  .getTransactionsStream(true), // Passa true para despesas
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -76,14 +82,17 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
 
                 if (snapshot.hasError) {
                   print('Erro no StreamBuilder de Gastos: ${snapshot.error}');
-                  return Center(child: Text('Erro ao carregar gastos: ${snapshot.error}'));
+                  return Center(
+                      child:
+                          Text('Erro ao carregar gastos: ${snapshot.error}'));
                 }
 
                 final expenses = snapshot.data ?? [];
 
                 if (expenses.isEmpty) {
                   return const Center(
-                    child: Text('Nenhum gasto registrado ainda.\nClique no "+" para adicionar um novo.'),
+                    child: Text(
+                        'Nenhum gasto registrado ainda.\nClique no "+" para adicionar um novo.'),
                   );
                 }
 
@@ -94,17 +103,25 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                       bool sucesso = await provider.removerTransacao(id);
                       if (sucesso) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Gasto excluído com sucesso!'), backgroundColor: Colors.green),
+                          const SnackBar(
+                              content: Text('Gasto excluído com sucesso!'),
+                              backgroundColor: Colors.green),
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(provider.erro ?? 'Erro ao excluir gasto.'), backgroundColor: Colors.red),
+                          SnackBar(
+                              content: Text(
+                                  provider.erro ?? 'Erro ao excluir gasto.'),
+                              backgroundColor: Colors.red),
                         );
                       }
                     } catch (e) {
                       print('Erro inesperado ao excluir gasto: $e');
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Erro inesperado ao excluir gasto: ${e.toString()}'), backgroundColor: Colors.red),
+                        SnackBar(
+                            content: Text(
+                                'Erro inesperado ao excluir gasto: ${e.toString()}'),
+                            backgroundColor: Colors.red),
                       );
                     }
                   },

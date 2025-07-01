@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/transacao_provider.dart';
-import '../models/transaction.dart';
+// import '../models/transaction.dart';
 import '../enums/tipo_transacao.dart';
 import 'transacao_form_screen.dart'; // Para o FloatingActionButton
 import '../widgets/transaction_list.dart'; // Para exibir a lista de todas as transações
@@ -16,13 +16,15 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this); // 3 abas: Todas, Gastos, Ganhos
+    _tabController =
+        TabController(length: 3, vsync: this); // 3 abas: Todas, Gastos, Ganhos
   }
 
   @override
@@ -64,12 +66,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildSaldoItem(
-                'Receitas', 
+                'Receitas',
                 provider.getTotalPorTipo(TipoTransacao.receita),
                 TipoTransacao.receita.icone,
               ),
               _buildSaldoItem(
-                'Despesas', 
+                'Despesas',
                 provider.getTotalPorTipo(TipoTransacao.despesa),
                 TipoTransacao.despesa.icone,
               ),
@@ -153,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     context,
                     MaterialPageRoute(
                       // Passa o isExpense para o TransacaoFormScreen se ele lidar com isso
-                      builder: (context) => const TransacaoFormScreen(), 
+                      builder: (context) => const TransacaoFormScreen(),
                     ),
                   );
                   // Opcional: pré-selecionar o tipo na TransacaoFormScreen
@@ -169,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     context,
                     MaterialPageRoute(
                       // Passa o isExpense para o TransacaoFormScreen se ele lidar com isso
-                      builder: (context) => const TransacaoFormScreen(), 
+                      builder: (context) => const TransacaoFormScreen(),
                     ),
                   );
                   // Opcional: pré-selecionar o tipo na TransacaoFormScreen
@@ -191,7 +193,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
         elevation: 0, // Remover sombra para um visual mais limpo com as abas
-        bottom: TabBar( // <--- Adicionando o TabBar aqui
+        bottom: TabBar(
+          // <--- Adicionando o TabBar aqui
           controller: _tabController,
           indicatorColor: Colors.white,
           labelColor: Colors.white,
@@ -209,10 +212,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             children: [
               // Card de Saldo
               _buildSaldoCard(provider),
-              
+
               // Conteúdo das Abas (TransactionList, ExpenseScreen, IncomeScreen)
               Expanded(
-                child: TabBarView( // <--- Adicionando o TabBarView
+                child: TabBarView(
+                  // <--- Adicionando o TabBarView
                   controller: _tabController,
                   children: [
                     _buildTodasTransacoesList(provider), // Todas as transações

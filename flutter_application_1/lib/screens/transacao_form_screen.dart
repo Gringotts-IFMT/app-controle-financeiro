@@ -5,15 +5,16 @@ import 'package:intl/intl.dart'; // Para formatação de data
 import '../providers/transacao_provider.dart';
 import '../models/transaction.dart';
 import '../enums/tipo_transacao.dart';
-import '../Models/usuario.dart'; // Certifique-se de que este import está correto
+// import '../Models/usuario.dart'; // Certifique-se de que este import está correto
 
 class TransacaoFormScreen extends StatefulWidget {
   // Removi o 'isExpense' do construtor se você prefere sempre o RadioListTile
   // Se quiser que a tela possa ser inicializada com um tipo específico, adicione-o de volta:
   // final bool? isExpenseInitial;
   // const TransacaoFormScreen({super.key, this.isExpenseInitial});
-  
-  const TransacaoFormScreen({super.key}); // Para o caso de não receber parâmetro
+
+  const TransacaoFormScreen(
+      {super.key}); // Para o caso de não receber parâmetro
 
   @override
   _TransacaoFormScreenState createState() => _TransacaoFormScreenState();
@@ -23,13 +24,19 @@ class _TransacaoFormScreenState extends State<TransacaoFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _descricaoController = TextEditingController();
   final _valorController = TextEditingController();
-  
+
   TipoTransacao _tipoSelecionado = TipoTransacao.despesa;
   String _categoriaSelecionada = 'Alimentação';
   DateTime _dataSelecionada = DateTime.now(); // Data padrão atual
 
   final List<String> _categorias = [
-    'Alimentação', 'Transporte', 'Lazer', 'Saúde', 'Educação', 'Casa', 'Outros'
+    'Alimentação',
+    'Transporte',
+    'Lazer',
+    'Saúde',
+    'Educação',
+    'Casa',
+    'Outros'
   ];
 
   @override
@@ -54,7 +61,8 @@ class _TransacaoFormScreenState extends State<TransacaoFormScreen> {
       context: context,
       initialDate: _dataSelecionada,
       firstDate: DateTime(2000),
-      lastDate: DateTime.now().add(const Duration(days: 365)), // Ex: Até 1 ano no futuro
+      lastDate: DateTime.now()
+          .add(const Duration(days: 365)), // Ex: Até 1 ano no futuro
       helpText: 'Selecione a Data da Transação',
       cancelText: 'Cancelar',
       confirmText: 'Confirmar',
@@ -62,7 +70,8 @@ class _TransacaoFormScreenState extends State<TransacaoFormScreen> {
         return Theme(
           data: ThemeData.light().copyWith(
             colorScheme: ColorScheme.light(
-              primary: _tipoSelecionado.cor, // Cor do seletor de data baseado no tipo
+              primary: _tipoSelecionado
+                  .cor, // Cor do seletor de data baseado no tipo
               onPrimary: Colors.white,
               surface: Colors.white,
               onSurface: Colors.black87,
@@ -87,21 +96,23 @@ class _TransacaoFormScreenState extends State<TransacaoFormScreen> {
     final currentUserId = FirebaseAuth.instance.currentUser?.uid;
     if (currentUserId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro: Usuário não logado. Faça login novamente.'), backgroundColor: Colors.red),
+        const SnackBar(
+            content: Text('Erro: Usuário não logado. Faça login novamente.'),
+            backgroundColor: Colors.red),
       );
       return; // Interrompe a função se o usuário não estiver logado
     }
     // -------------------------------------------
 
     double valor = double.parse(_valorController.text.replaceAll(',', '.'));
-    
+
     // Ajustar valor baseado no tipo (negativo para despesa)
     if (_tipoSelecionado == TipoTransacao.despesa) {
       valor = -valor.abs(); // Força negativo para despesas
     } else {
       valor = valor.abs(); // Força positivo para receitas
     }
-    
+
     // Criar transação usando seu modelo existente
     final transacao = FinancialTransaction(
       id: '', // O Firebase Firestore irá gerar o ID do documento
@@ -115,11 +126,13 @@ class _TransacaoFormScreenState extends State<TransacaoFormScreen> {
     );
 
     final provider = Provider.of<TransacaoProvider>(context, listen: false);
-    
-    // Adicionar transação usando o provider
-    bool sucesso = await provider.addTransaction(transacao); // O provider já lida com o isLoading
 
-    if (sucesso) { // Verificar o resultado da operação do provider
+    // Adicionar transação usando o provider
+    bool sucesso = await provider
+        .addTransaction(transacao); // O provider já lida com o isLoading
+
+    if (sucesso) {
+      // Verificar o resultado da operação do provider
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -143,7 +156,8 @@ class _TransacaoFormScreenState extends State<TransacaoFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Nova Transação'),
-        backgroundColor: _tipoSelecionado.cor, // AppBar muda de cor conforme o tipo
+        backgroundColor:
+            _tipoSelecionado.cor, // AppBar muda de cor conforme o tipo
         foregroundColor: Colors.white,
       ),
       body: Form(
@@ -154,7 +168,8 @@ class _TransacaoFormScreenState extends State<TransacaoFormScreen> {
             // Seletor de Tipo (Receita/Despesa)
             Card(
               elevation: 2,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -170,7 +185,9 @@ class _TransacaoFormScreenState extends State<TransacaoFormScreen> {
                             title: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(tipo.icone, style: const TextStyle(fontSize: 20)), // Usar .icone
+                                Text(tipo.icone,
+                                    style: const TextStyle(
+                                        fontSize: 20)), // Usar .icone
                                 const SizedBox(width: 8),
                                 Text(tipo.descricao), // Usar .descricao
                               ],
@@ -191,7 +208,7 @@ class _TransacaoFormScreenState extends State<TransacaoFormScreen> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
 
             // Campo Descrição
@@ -221,7 +238,8 @@ class _TransacaoFormScreenState extends State<TransacaoFormScreen> {
                 prefixIcon: Icon(Icons.attach_money),
                 prefixText: 'R\$ ',
               ),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return 'Informe o valor';
@@ -234,7 +252,7 @@ class _TransacaoFormScreenState extends State<TransacaoFormScreen> {
             ),
 
             const SizedBox(height: 16),
-            
+
             // Campo de seleção de Data
             ListTile(
               leading: const Icon(Icons.calendar_today),
@@ -285,7 +303,8 @@ class _TransacaoFormScreenState extends State<TransacaoFormScreen> {
                     backgroundColor: _tipoSelecionado.cor,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
                   child: provider.isLoading
                       ? const CircularProgressIndicator(color: Colors.white)

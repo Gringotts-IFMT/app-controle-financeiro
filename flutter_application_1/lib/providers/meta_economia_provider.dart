@@ -4,8 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart'; // <--- Importante: Para obte
 import '../models/meta_economia.dart';
 import '../enums/status_meta_economia.dart';
 import '../services/database_service.dart'; // Seu DatabaseService será ajustado em seguida
-import 'package:controle_financeiro/Models/usuario.dart'; // Opcional, se precisar referenciar o modelo do Usuario aqui.
-
+// import 'package:controle_financeiro/Models/usuario.dart'; // Opcional, se precisar referenciar o modelo do Usuario aqui.
 
 class MetaEconomiaProvider with ChangeNotifier {
   List<MetaEconomia> _metas = [];
@@ -22,8 +21,9 @@ class MetaEconomiaProvider with ChangeNotifier {
       _metas.where((meta) => meta.status == StatusMetaEconomia.ativa).toList();
 
   // Getter para metas concluídas
-  List<MetaEconomia> get metasConcluidas =>
-      _metas.where((meta) => meta.status == StatusMetaEconomia.concluida).toList();
+  List<MetaEconomia> get metasConcluidas => _metas
+      .where((meta) => meta.status == StatusMetaEconomia.concluida)
+      .toList();
 
   // Getter para metas vencidas
   List<MetaEconomia> get metasVencidas =>
@@ -38,7 +38,7 @@ class MetaEconomiaProvider with ChangeNotifier {
   // Inicializar stream listener
   void inicializarListener() {
     _metasSubscription?.cancel(); // Cancela qualquer listener anterior
-    
+
     final userId = currentUserId;
     if (userId == null) {
       _erro = 'Usuário não logado para carregar metas. Por favor, faça login.';
@@ -50,27 +50,31 @@ class MetaEconomiaProvider with ChangeNotifier {
 
     // Passa o userId para o DatabaseService para filtrar as metas
     _metasSubscription = _databaseService.streamMetas(userId).listen(
-      (metasCarregadas) { // Nomeei a variável para evitar confusão com o getter 'metas'
+      (metasCarregadas) {
+        // Nomeei a variável para evitar confusão com o getter 'metas'
         _metas = metasCarregadas;
         _ordenarMetas();
         _erro = null;
         _isLoading = false; // Quando os dados chegam, o loading deve ser falso
         notifyListeners();
       },
-      onError: (error, stackTrace) { // Adicione stackTrace para melhor depuração
+      onError: (error, stackTrace) {
+        // Adicione stackTrace para melhor depuração
         _erro = 'Erro ao escutar mudanças nas metas: $error';
         _isLoading = false; // Garante que o loading seja falso
         notifyListeners();
-        print('Erro no listener de metas: $error\n$stackTrace'); // Para debug mais completo
+        print(
+            'Erro no listener de metas: $error\n$stackTrace'); // Para debug mais completo
       },
       onDone: () {
         print('Stream de metas concluída.');
       },
     ) as StreamSubscription<List<MetaEconomia>>?;
     // O loading deve ser true enquanto espera o primeiro dado do stream
-    if (!_isLoading && _metas.isEmpty) { // Apenas para o estado inicial
-       _isLoading = true;
-       notifyListeners();
+    if (!_isLoading && _metas.isEmpty) {
+      // Apenas para o estado inicial
+      _isLoading = true;
+      notifyListeners();
     }
   }
 
@@ -85,7 +89,8 @@ class MetaEconomiaProvider with ChangeNotifier {
       return;
     }
     try {
-      _metas = await _databaseService.buscarMetas(userId); // <--- Passando userId
+      _metas =
+          await _databaseService.buscarMetas(userId); // <--- Passando userId
       _ordenarMetas();
       _erro = null;
     } catch (e) {
@@ -108,8 +113,10 @@ class MetaEconomiaProvider with ChangeNotifier {
     try {
       // Cria uma cópia da meta com o userId do usuário logado antes de enviar ao DB
       // Isso garante que a meta que vai para o Firestore tenha o userId correto
-      final metaComUserId = meta.copyWith(userId: userId); // <--- Adiciona o userId aqui
-      await _databaseService.addOrUpdateMetaEconomia(metaComUserId, userId); // Passa a meta com userId e userId como argumento
+      final metaComUserId =
+          meta.copyWith(userId: userId); // <--- Adiciona o userId aqui
+      await _databaseService.addOrUpdateMetaEconomia(metaComUserId,
+          userId); // Passa a meta com userId e userId como argumento
       _erro = null;
       // Se o listener de stream estiver ativo, ele já atualizará a lista.
       // Se não, adiciona manualmente para atualização imediata na UI.
@@ -139,7 +146,8 @@ class MetaEconomiaProvider with ChangeNotifier {
     }
     try {
       // Cria uma cópia da meta para atualização, garantindo o userId e dataAtualizacao
-      final metaParaAtualizar = meta.copyWith(userId: userId, dataAtualizacao: DateTime.now());
+      final metaParaAtualizar =
+          meta.copyWith(userId: userId, dataAtualizacao: DateTime.now());
       await _databaseService.atualizarStatusMeta(
         metaParaAtualizar.id!,
         metaParaAtualizar.status.name,
@@ -177,7 +185,8 @@ class MetaEconomiaProvider with ChangeNotifier {
     }
     try {
       // Passa o userId para o DatabaseService para que ele possa validar a posse
-      await _databaseService.deleteMetaEconomia(id, userId); // <--- Passando userId
+      await _databaseService.deleteMetaEconomia(
+          id, userId); // <--- Passando userId
       _erro = null;
       // Se o listener de stream estiver ativo, ele já removerá da lista.
       // Se não, remove manualmente.
@@ -205,8 +214,9 @@ class MetaEconomiaProvider with ChangeNotifier {
     }
     try {
       // Passa o userId para o DatabaseService para validação
-      await _databaseService.atualizarValorAtualMeta(id, novoValor, userId); // <--- Passando userId
-      
+      await _databaseService.atualizarValorAtualMeta(
+          id, novoValor, userId); // <--- Passando userId
+
       // Considera sucesso se não lançar exceção
       _erro = null;
       // Após a atualização no DB, o stream listener (se ativo) vai atualizar a lista.
@@ -214,9 +224,12 @@ class MetaEconomiaProvider with ChangeNotifier {
       // Mas para a lógica de conclusão, podemos verificar a meta atual da lista
       // (que o stream já deve ter atualizado ou será atualizada em breve).
       final meta = buscarMetaPorId(id);
-      if (meta != null && novoValor >= meta.valorMeta && meta.status != StatusMetaEconomia.concluida) {
+      if (meta != null &&
+          novoValor >= meta.valorMeta &&
+          meta.status != StatusMetaEconomia.concluida) {
         // Marca como concluída se o valor for atingido e ainda não estiver
-        await _databaseService.atualizarStatusMeta(id, StatusMetaEconomia.concluida.name, userId); // <--- Passando userId
+        await _databaseService.atualizarStatusMeta(id,
+            StatusMetaEconomia.concluida.name, userId); // <--- Passando userId
       }
       return true;
     } catch (e) {
@@ -273,7 +286,8 @@ class MetaEconomiaProvider with ChangeNotifier {
   // Buscar metas por categoria (na lista local)
   List<MetaEconomia> buscarMetasPorCategoria(String categoria) {
     return _metas
-        .where((meta) => meta.categoria?.toLowerCase() == categoria.toLowerCase())
+        .where(
+            (meta) => meta.categoria?.toLowerCase() == categoria.toLowerCase())
         .toList();
   }
 
@@ -286,7 +300,8 @@ class MetaEconomiaProvider with ChangeNotifier {
       return [];
     }
     try {
-      return await _databaseService.buscarMetasVencendo(dias, userId); // <--- Passando userId
+      return await _databaseService.buscarMetasVencendo(
+          dias, userId); // <--- Passando userId
     } catch (e) {
       _erro = 'Erro ao buscar metas vencendo: $e';
       print('Erro ao buscar metas vencendo: $e');
@@ -310,10 +325,12 @@ class MetaEconomiaProvider with ChangeNotifier {
   double get progressoGeralMetas {
     final metasAtivas = this.metasAtivas;
     if (metasAtivas.isEmpty) return 0.0;
-    
-    final totalMeta = metasAtivas.fold(0.0, (total, meta) => total + meta.valorMeta);
-    final totalAtual = metasAtivas.fold(0.0, (total, meta) => total + meta.valorAtual);
-    
+
+    final totalMeta =
+        metasAtivas.fold(0.0, (total, meta) => total + meta.valorMeta);
+    final totalAtual =
+        metasAtivas.fold(0.0, (total, meta) => total + meta.valorAtual);
+
     return totalMeta > 0 ? (totalAtual / totalMeta) * 100 : 0.0;
   }
 
@@ -326,10 +343,12 @@ class MetaEconomiaProvider with ChangeNotifier {
   void _ordenarMetas() {
     _metas.sort((a, b) {
       // Prioridade: ativas primeiro, depois por data de fim
-      if (a.status == StatusMetaEconomia.ativa && b.status != StatusMetaEconomia.ativa) {
+      if (a.status == StatusMetaEconomia.ativa &&
+          b.status != StatusMetaEconomia.ativa) {
         return -1;
       }
-      if (b.status == StatusMetaEconomia.ativa && a.status != StatusMetaEconomia.ativa) {
+      if (b.status == StatusMetaEconomia.ativa &&
+          a.status != StatusMetaEconomia.ativa) {
         return 1;
       }
       return a.dataFim.compareTo(b.dataFim);
@@ -337,9 +356,11 @@ class MetaEconomiaProvider with ChangeNotifier {
   }
 
   // Método auxiliar para alterar status, agora recebendo userId
-  Future<bool> _alterarStatusMeta(String id, StatusMetaEconomia novoStatus, String userId) async {
+  Future<bool> _alterarStatusMeta(
+      String id, StatusMetaEconomia novoStatus, String userId) async {
     try {
-      await _databaseService.atualizarStatusMeta(id, novoStatus.name, userId); // <--- Passando userId
+      await _databaseService.atualizarStatusMeta(
+          id, novoStatus.name, userId); // <--- Passando userId
       _erro = null;
       return true;
     } catch (e) {
