@@ -19,6 +19,12 @@ dependencies:
   crypto: ^3.0.0
   path: ^1.8.0
   http_parser: ^4.0.0
+  provider: ^6.1.5
+
+   # Adicione ou verifique estas linhas para o Firebase
+  
+  firebase_auth: ^4.17.9  # Use a versão mais recente que for compatível
+  
 
 dev_dependencies:
   flutter_test:

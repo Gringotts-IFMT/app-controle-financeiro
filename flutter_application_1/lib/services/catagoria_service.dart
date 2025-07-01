@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../models/Categoria/model_categoria.dart';
+import 'package:controle_financeiro/Models/categoria.dart';
 
 class CategoriaService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

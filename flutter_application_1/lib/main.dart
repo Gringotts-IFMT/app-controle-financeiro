@@ -1,177 +1,142 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'screens/expense_screen.dart';
-import 'screens/income_screen.dart';
-import 'screens/Categoria/screen.categoria.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // <--- Adicionado: Importar Firebase Auth
+
+import 'providers/meta_economia_provider.dart';
+import 'providers/transacao_provider.dart';
+
+import 'screens/home_screen.dart';
+import 'screens/metas_list_screen.dart';
+import 'screens/login_screen.dart'; // <--- Adicionado: Importar sua tela de login
+import 'screens/categoria_screen.dart';
+
+import 'firebase_options.dart'; // <--- Nova linha de importação
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options: const FirebaseOptions(
-      apiKey: "AIzaSyC1fdQ6PaN2tegYOzMdijfyhwsgEbf_fCE",
-      authDomain: "voltaic-racer-230700.firebaseapp.com",
-      projectId: "voltaic-racer-230700",
-      storageBucket: "voltaic-racer-230700.appspot.com",
-      messagingSenderId: "375462470587",
-      appId: "1:375462470587:web:a380d4325684168ff19a9e",
-      measurementId: "G-ZQ3GQ9P0VM",
-    ),
+    options: DefaultFirebaseOptions.currentPlatform, // <--- Use esta linha!
   );
   runApp(const MyApp());
 }
 
+// ... o restante do seu código (MyApp, MainNavigator, TabBarScreens) continua o mesmo.
+// O StreamBuilder em MyApp.build() já está configurado para o fluxo de login.
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Controle Financeiro',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-        useMaterial3: true,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => TransacaoProvider()),
+        ChangeNotifierProvider(create: (_) => MetaEconomiaProvider()),
+        // Adicione outros providers aqui, como CategoriaService, UsuarioService, se eles também usarem ChangeNotifier
+      ],
+      child: MaterialApp(
+        title: 'Controle Financeiro',
+        theme: ThemeData(
+          primarySwatch: Colors.green,
+          useMaterial3: true,
+        ),
+        // A GRANDE MUDANÇA ESTÁ AQUI: Usar StreamBuilder para verificar o estado de autenticação
+        home: StreamBuilder<User?>(
+          // Escuta por mudanças no usuário logado
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              // Mostra um indicador de carregamento enquanto espera o estado de autenticação
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            } else if (snapshot.hasData && snapshot.data != null) {
+              // Se o usuário está logado (snapshot.hasData e snapshot.data não são nulos)
+              // Inicializa os listeners dos providers AGORA, pois o userId está disponível
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Provider.of<TransacaoProvider>(context, listen: false)
+                    .carregarTransacoes();
+                Provider.of<MetaEconomiaProvider>(context, listen: false)
+                    .inicializarListener();
+                // Outros listeners/carregamentos que dependem do userId
+              });
+              return const MainNavigator(); // Redireciona para sua navegação principal
+            } else {
+              // Se não há usuário logado (snapshot.hasData é false ou snapshot.data é null)
+              return const LoginScreen(); // Redireciona para a tela de login
+            }
+          },
+        ),
+        debugShowCheckedModeBanner: false,
+        // ROTAS NOMEADAS (OPCIONAL, mas útil para navegação sem parâmetros)
+        routes: {
+          '/login': (context) => const LoginScreen(),
+          '/home': (context) =>
+              const MainNavigator(), // Ou se MainNavigator for sua home principal
+          '/metas': (context) => const MetasListScreen(),
+          // Adicione rotas para MetaFormScreen e TransacaoFormScreen se você estiver usando Navigator.pushNamed
+          // '/meta-form': (context) => const MetaFormScreen(),
+          // '/transacao-form': (context) => const TransacaoFormScreen(),
+        },
       ),
-      home: const HomePage(),
     );
   }
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+// Mantenha MainNavigator e TabBarScreens como estão
+class MainNavigator extends StatefulWidget {
+  const MainNavigator({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<MainNavigator> createState() => _MainNavigatorState();
 }
 
-class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-  int _index = 0;
+class _MainNavigatorState extends State<MainNavigator> {
+  int _currentIndex = 0;
+
+  // Lista de telas para a BottomNavigationBar
+  final List<Widget> _screens = const [ // <--- MUITO IMPORTANTE: Usar 'const' se as telas forem const
+    HomeScreen(),          // A nova HomeScreen com abas de transações/gastos/ganhos
+    CategoriaScreen(),     // <--- A tela de Categorias real do Guilherme
+    MetasListScreen(),     // Sua tela de metas
+  ];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-  }
-
-  // Função para retornar o título da AppBar baseado no índice
-  String _getAppBarTitle() {
-    switch (_index) {
-      case 0:
-        return 'Controle Financeiro';
-      case 1:
-        return 'Relatórios';
-      case 2:
-        return 'Perfil do Usuário';
-      case 3:
-        return 'Categorias';
-      default:
-        return 'Controle Financeiro';
-    }
-  }
-
-  // Função para retornar o corpo da tela baseado no índice
-  Widget _getBody() {
-    switch (_index) {
-      case 0:
-        return TabBarView(
-          controller: _tabController,
-          children: const [
-            ExpenseScreen(),
-            IncomeScreen(),
-          ],
-        );
-      case 1:
-        return const Center(
-          child: Text(
-            'Tela de Relatórios (em construção)',
-            style: TextStyle(fontSize: 18),
-          ),
-        );
-      case 2:
-        return const Center(
-          child: Text(
-            'Tela de Perfil do Usuário (em construção)',
-            style: TextStyle(fontSize: 18),
-          ),
-        );
-      case 3:
-        return const CategoriaScreen(); // Aqui é onde sua tela de categoria será exibida
-      default:
-        return const Center(
-          child: Text(
-            'Tela não encontrada',
-            style: TextStyle(fontSize: 18),
-          ),
-        );
-    }
+    // Chamadas de carregamento já estão no StreamBuilder do MyApp
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(_getAppBarTitle()),
-        // Só mostra as abas quando estiver na tela Home (índice 0)
-        bottom: _index == 0
-            ? TabBar(
-                controller: _tabController,
-                tabs: const [
-                  Tab(
-                    icon: Icon(Icons.arrow_downward),
-                    text: 'Gastos',
-                  ),
-                  Tab(
-                    icon: Icon(Icons.arrow_upward),
-                    text: 'Ganhos',
-                  ),
-                ],
-              )
-            : null,
-      ),
-      body: _getBody(),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: (int newIndex) {
+      body: _screens[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
           setState(() {
-            _index = newIndex;
+            _currentIndex = index;
           });
-          // Se clicar no botão de categoria (índice 3), abre a tela de categorias
-          if (newIndex == 3) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => CategoriaScreen(),
-              ),
-            );
-          }
         },
-        destinations: const [
-          NavigationDestination(
+        items: const [
+          BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Home',
+            label: 'Início',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.bar_chart),
-            label: 'Relatórios',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person),
-            label: 'Perfil do Usuário',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.category),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.category), // Ícone de categoria
             label: 'Categorias',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.savings),
+            label: 'Metas',
           ),
         ],
       ),
     );
   }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
 }
+
+
+
+

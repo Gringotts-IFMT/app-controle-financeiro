@@ -1,7 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:controle_financeiro/models/Categoria/model_categoria.dart';
-import 'package:controle_financeiro/services/Categoria/service_categoria.dart';
+import 'package:controle_financeiro/Models/categoria.dart';
+import 'package:controle_financeiro/services/catagoria_service.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/form_categoria.dart';
 
