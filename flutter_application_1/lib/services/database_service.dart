@@ -292,4 +292,25 @@ class DatabaseService {
       rethrow;
     }
   }
+
+   // Obter transações por intervalo de datas para um usuário específico
+Future<List<FinancialTransaction>> getTransactionsByDateRange(
+    String userId, DateTime startDate, DateTime endDate) async {
+  try {
+    final querySnapshot = await _firestore
+        .collection(_transactionsCollection)
+        .where('userId', isEqualTo: userId)
+        .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
+        .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endDate))
+        .orderBy('date', descending: true) // Ou ascendente, dependendo da necessidade
+        .get();
+
+    return querySnapshot.docs
+        .map((doc) => FinancialTransaction.fromMap(doc.data(), doc.id))
+        .toList();
+  } catch (e) {
+    print('DatabaseService: Erro ao buscar transações por data: $e');
+    rethrow;
+  }
+}
 }

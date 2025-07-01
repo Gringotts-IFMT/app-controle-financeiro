@@ -1,3 +1,4 @@
+import 'package:controle_financeiro/providers/relatorio_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
@@ -5,11 +6,13 @@ import 'package:firebase_auth/firebase_auth.dart'; // <--- Adicionado: Importar 
 
 import 'providers/meta_economia_provider.dart';
 import 'providers/transacao_provider.dart';
+import 'providers/relatorio_provider.dart';
 
 import 'screens/home_screen.dart';
 import 'screens/metas_list_screen.dart';
 import 'screens/login_screen.dart'; // <--- Adicionado: Importar sua tela de login
 import 'screens/categoria_screen.dart';
+import 'screens/relatorio_screen.dart';
 
 import 'firebase_options.dart'; // <--- Nova linha de importação
 
@@ -32,6 +35,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => TransacaoProvider()),
         ChangeNotifierProvider(create: (_) => MetaEconomiaProvider()),
+        ChangeNotifierProvider(create: (_) => RelatorioProvider()), // <--- Adicionado: Provider para Categorias
         // Adicione outros providers aqui, como CategoriaService, UsuarioService, se eles também usarem ChangeNotifier
       ],
       child: MaterialApp(
@@ -99,6 +103,7 @@ class _MainNavigatorState extends State<MainNavigator> {
     HomeScreen(),          // A nova HomeScreen com abas de transações/gastos/ganhos
     CategoriaScreen(),     // <--- A tela de Categorias real do Guilherme
     MetasListScreen(),     // Sua tela de metas
+    RelatorioScreen(),     // Sua tela de relatórios
   ];
 
   @override
@@ -118,6 +123,11 @@ class _MainNavigatorState extends State<MainNavigator> {
             _currentIndex = index;
           });
         },
+        backgroundColor: Colors.white, // Define a cor de fundo da barra (pode ser qualquer cor)
+        selectedItemColor: Colors.green[700], // Cor do item selecionado
+        unselectedItemColor: Colors.grey[600], // Cor dos itens não selecionados
+        type: BottomNavigationBarType.fixed, // Necessário quando há 4 ou mais itens
+        showUnselectedLabels: true, // Mostra o texto dos itens não selecionados
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -130,6 +140,10 @@ class _MainNavigatorState extends State<MainNavigator> {
           BottomNavigationBarItem(
             icon: Icon(Icons.savings),
             label: 'Metas',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bar_chart), // Ícone de relatório
+            label: 'Relatórios',
           ),
         ],
       ),
