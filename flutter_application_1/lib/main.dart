@@ -41,8 +41,13 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Controle Financeiro',
         theme: ThemeData(
-          primarySwatch: Colors.green,
+          // primarySwatch: Colors.green,
           useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF132C33),
+            primary: const Color(0xFF132C33), // Cor primária do tema
+            onPrimary: Colors.white, // Cor do texto sobre a cor primária
+          )
         ),
         // A GRANDE MUDANÇA ESTÁ AQUI: Usar StreamBuilder para verificar o estado de autenticação
         home: StreamBuilder<User?>(
