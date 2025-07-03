@@ -15,6 +15,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
 
+  
+
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Por favor, insira seu email.';
@@ -104,61 +106,99 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // AGORA VOCÊ PEGA A COR PRIMÁRIA DIRETAMENTE DO TEMA CONFIGURADO NO MAIN.DART
+    final primaryColorFromTheme = Theme.of(context).colorScheme.primary; 
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login / Registro'),
-      ),
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(32.0),
           child: Form(
             key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                // --- LOGO DO APP ---
+                Image.asset(
+                  'assets/images/logo.png',
+                  height: 200,
+                  fit: BoxFit.contain,
+                ),
+                const SizedBox(height: 8),
+
+                // Título de boas-vindas
+                Text(
+                  'Bem-vindo(a)!',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: primaryColorFromTheme, // <--- USANDO A COR DO TEMA AQUI
+                  ),
+                ),
+                const SizedBox(height: 30),
+
+                // Campo de Email
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Email',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.email),
+                    hintText: 'exemplo@email.com',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    prefixIcon: Icon(Icons.email, color: primaryColorFromTheme), // <--- USANDO A COR DO TEMA AQUI
+                    filled: true,
+                    fillColor: Colors.grey[100],
                   ),
                   validator: _validateEmail,
                 ),
                 const SizedBox(height: 20),
+
+                // Campo de Senha
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Senha',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.lock),
+                    hintText: 'Mínimo de 6 caracteres',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    prefixIcon: Icon(Icons.lock, color: primaryColorFromTheme), // <--- USANDO A COR DO TEMA AQUI
+                    filled: true,
+                    fillColor: Colors.grey[100],
                   ),
                   validator: _validatePassword,
                 ),
                 const SizedBox(height: 30),
+
+                // Botão de Entrar
                 _isLoading
-                    ? const CircularProgressIndicator()
-                    : Column(
-                        children: [
-                          ElevatedButton(
-                            onPressed: _signIn,
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: const Size(double.infinity, 50),
-                            ),
-                            child: const Text(
-                              'Entrar',
-                              style: TextStyle(fontSize: 18),
-                            ),
+                    ? CircularProgressIndicator(color: primaryColorFromTheme) // <--- USANDO A COR DO TEMA AQUI
+                    : ElevatedButton(
+                        onPressed: _signIn,
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 55),
+                          backgroundColor: primaryColorFromTheme, // <--- USANDO A COR DO TEMA AQUI
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          const SizedBox(height: 15),
-                          TextButton(
-                            onPressed: _signUp,
-                            child: const Text('Não tem uma conta? Registre-se'),
-                          ),
-                        ],
+                          elevation: 5,
+                        ),
+                        child: const Text(
+                          'Entrar',
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
                       ),
+                
+                const SizedBox(height: 15),
+
+                // Botão de Registro
+                TextButton(
+                  onPressed: _signUp,
+                  child: Text(
+                    'Não tem uma conta? Registre-se',
+                    style: TextStyle(color: primaryColorFromTheme), // <--- USANDO A COR DO TEMA AQUI
+                  ),
+                ),
               ],
             ),
           ),
