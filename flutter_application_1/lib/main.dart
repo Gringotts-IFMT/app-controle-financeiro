@@ -1,31 +1,31 @@
+import 'package:controle_financeiro/widgets/icone_notificacoes.dart';
 import 'package:controle_financeiro/providers/relatorio_provider.dart';
+import 'package:controle_financeiro/providers/configuracoes_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // <--- Adicionado: Importar Firebase Auth
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'providers/meta_economia_provider.dart';
 import 'providers/transacao_provider.dart';
-import 'providers/relatorio_provider.dart';
 
 import 'screens/home_screen.dart';
 import 'screens/metas_list_screen.dart';
-import 'screens/login_screen.dart'; // <--- Adicionado: Importar sua tela de login
+import 'screens/login_screen.dart';
 import 'screens/categoria_screen.dart';
 import 'screens/relatorio_screen.dart';
+import 'screens/configuracoes_screen.dart';
 
-import 'firebase_options.dart'; // <--- Nova linha de importação
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform, // <--- Use esta linha!
+    options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(const MyApp());
 }
 
-// ... o restante do seu código (MyApp, MainNavigator, TabBarScreens) continua o mesmo.
-// O StreamBuilder em MyApp.build() já está configurado para o fluxo de login.
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -35,64 +35,70 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => TransacaoProvider()),
         ChangeNotifierProvider(create: (_) => MetaEconomiaProvider()),
-        ChangeNotifierProvider(create: (_) => RelatorioProvider()), // <--- Adicionado: Provider para Categorias
-        // Adicione outros providers aqui, como CategoriaService, UsuarioService, se eles também usarem ChangeNotifier
+        ChangeNotifierProvider(create: (_) => RelatorioProvider()),
+        ChangeNotifierProvider(create: (_) => ConfiguracoesProvider()),
       ],
-      child: MaterialApp(
-        title: 'Controle Financeiro',
-        theme: ThemeData(
-          // primarySwatch: Colors.green,
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF132C33),
-            primary: const Color(0xFF132C33), // Cor primária do tema
-            onPrimary: Colors.white, // Cor do texto sobre a cor primária
-          )
-        ),
-        // A GRANDE MUDANÇA ESTÁ AQUI: Usar StreamBuilder para verificar o estado de autenticação
-        home: StreamBuilder<User?>(
-          // Escuta por mudanças no usuário logado
-          stream: FirebaseAuth.instance.authStateChanges(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              // Mostra um indicador de carregamento enquanto espera o estado de autenticação
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
-            } else if (snapshot.hasData && snapshot.data != null) {
-              // Se o usuário está logado (snapshot.hasData e snapshot.data não são nulos)
-              // Inicializa os listeners dos providers AGORA, pois o userId está disponível
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                Provider.of<TransacaoProvider>(context, listen: false)
-                    .carregarTransacoes();
-                Provider.of<MetaEconomiaProvider>(context, listen: false)
-                    .inicializarListener();
-                // Outros listeners/carregamentos que dependem do userId
-              });
-              return const MainNavigator(); // Redireciona para sua navegação principal
-            } else {
-              // Se não há usuário logado (snapshot.hasData é false ou snapshot.data é null)
-              return const LoginScreen(); // Redireciona para a tela de login
-            }
-          },
-        ),
-        debugShowCheckedModeBanner: false,
-        // ROTAS NOMEADAS (OPCIONAL, mas útil para navegação sem parâmetros)
-        routes: {
-          '/login': (context) => const LoginScreen(),
-          '/home': (context) =>
-              const MainNavigator(), // Ou se MainNavigator for sua home principal
-          '/metas': (context) => const MetasListScreen(),
-          // Adicione rotas para MetaFormScreen e TransacaoFormScreen se você estiver usando Navigator.pushNamed
-          // '/meta-form': (context) => const MetaFormScreen(),
-          // '/transacao-form': (context) => const TransacaoFormScreen(),
+      child: Consumer<ConfiguracoesProvider>(
+        builder: (context, configProvider, child) {
+          return MaterialApp(
+            title: 'Controle Financeiro',
+            theme: ThemeData(
+              useMaterial3: true,
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: const Color(0xFF132C33),
+                primary: const Color(0xFF132C33),
+                onPrimary: Colors.white,
+                brightness: Brightness.light,
+              ),
+            ),
+            darkTheme: ThemeData(
+              useMaterial3: true,
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: const Color(0xFF132C33),
+                primary: const Color(0xFF132C33),
+                onPrimary: Colors.white,
+                brightness: Brightness.dark,
+              ),
+            ),
+            themeMode: configProvider.config?.modoEscuro == true
+                ? ThemeMode.dark
+                : ThemeMode.light,
+            home: StreamBuilder<User?>(
+              stream: FirebaseAuth.instance.authStateChanges(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Scaffold(
+                    body: Center(child: CircularProgressIndicator()),
+                  );
+                } else if (snapshot.hasData && snapshot.data != null) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    Provider.of<TransacaoProvider>(context, listen: false)
+                        .carregarTransacoes();
+                    Provider.of<MetaEconomiaProvider>(context, listen: false)
+                        .inicializarListener();
+                    Provider.of<ConfiguracoesProvider>(context, listen: false)
+                        .carregarConfiguracoes();
+                  });
+                  return const MainNavigator();
+                } else {
+                  return const LoginScreen();
+                }
+              },
+            ),
+            debugShowCheckedModeBanner: false,
+            routes: {
+              '/login': (context) => const LoginScreen(),
+              '/home': (context) => const MainNavigator(),
+              '/metas': (context) => const MetasListScreen(),
+              '/configuracoes': (context) => const ConfiguracoesScreen(),
+            },
+          );
         },
       ),
     );
   }
 }
 
-// Mantenha MainNavigator e TabBarScreens como estão
 class MainNavigator extends StatefulWidget {
   const MainNavigator({super.key});
 
@@ -103,23 +109,23 @@ class MainNavigator extends StatefulWidget {
 class _MainNavigatorState extends State<MainNavigator> {
   int _currentIndex = 0;
 
-  // Lista de telas para a BottomNavigationBar
-  final List<Widget> _screens = const [ // <--- MUITO IMPORTANTE: Usar 'const' se as telas forem const
-    HomeScreen(),          // A nova HomeScreen com abas de transações/gastos/ganhos
-    CategoriaScreen(),     // <--- A tela de Categorias real do Guilherme
-    MetasListScreen(),     // Sua tela de metas
-    RelatorioScreen(),     // Sua tela de relatórios
+  final List<Widget> _screens = const [
+    HomeScreen(),
+    CategoriaScreen(),
+    MetasListScreen(),
+    RelatorioScreen(),
+    ConfiguracoesScreen(), // Adicionada a tela de configurações
   ];
-
-  @override
-  void initState() {
-    super.initState();
-    // Chamadas de carregamento já estão no StreamBuilder do MyApp
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Controle Financeiro'),
+        actions: const [
+          IconeNotificacoes(),
+        ],
+      ),
       body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -128,18 +134,19 @@ class _MainNavigatorState extends State<MainNavigator> {
             _currentIndex = index;
           });
         },
-        backgroundColor: Colors.white, // Define a cor de fundo da barra (pode ser qualquer cor)
-        selectedItemColor: Colors.green[700], // Cor do item selecionado
-        unselectedItemColor: Colors.grey[600], // Cor dos itens não selecionados
-        type: BottomNavigationBarType.fixed, // Necessário quando há 4 ou mais itens
-        showUnselectedLabels: true, // Mostra o texto dos itens não selecionados
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
+        unselectedItemColor:
+            Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+        type: BottomNavigationBarType.fixed,
+        showUnselectedLabels: true,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Início',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.category), // Ícone de categoria
+            icon: Icon(Icons.category),
             label: 'Categorias',
           ),
           BottomNavigationBarItem(
@@ -147,15 +154,15 @@ class _MainNavigatorState extends State<MainNavigator> {
             label: 'Metas',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart), // Ícone de relatório
+            icon: Icon(Icons.bar_chart),
             label: 'Relatórios',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Configurações',
           ),
         ],
       ),
     );
   }
 }
-
-
-
-

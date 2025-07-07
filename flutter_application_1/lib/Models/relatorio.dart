@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart'; // Para Timestamp
-import 'package:flutter/material.dart'; // Para @required, se usar. (Ou remove se não quiser)
 import '../enums/tipo_relatorio.dart'; // Importa o enum TipoRelatorio
-import '../models/transaction.dart'; // Para usar o modelo de transação
 
 class Relatorio {
   // Dados básicos do relatório
@@ -18,10 +16,11 @@ class Relatorio {
   final double saldoFinal;
 
   // Dados para gráficos (simples, podem ser expandidos)
-  final Map<String, double> gastosPorCategoria; // Ex: {'Alimentação': 150.0, 'Transporte': 80.0}
+  final Map<String, double>
+      gastosPorCategoria; // Ex: {'Alimentação': 150.0, 'Transporte': 80.0}
   // Para evolução de saldo, você pode ter uma lista de Maps ou objetos mais complexos
   // Ex: [{'date': DateTime, 'saldo': double}, ...]
-  final List<Map<String, dynamic>> evolucaoSaldoPorPeriodo; 
+  final List<Map<String, dynamic>> evolucaoSaldoPorPeriodo;
 
   Relatorio({
     this.id,
@@ -42,16 +41,20 @@ class Relatorio {
     return Relatorio(
       id: id ?? map['id'],
       userId: map['userId'] ?? '',
-      tipoRelatorio: TipoRelatorioExtension.fromString(map['tipoRelatorio'] ?? 'mensal'),
+      tipoRelatorio:
+          TipoRelatorioExtension.fromString(map['tipoRelatorio'] ?? 'mensal'),
       dataInicio: (map['dataInicio'] as Timestamp?)?.toDate() ?? DateTime.now(),
       dataFim: (map['dataFim'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      dataGeracao: (map['dataGeracao'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      dataGeracao:
+          (map['dataGeracao'] as Timestamp?)?.toDate() ?? DateTime.now(),
       totalReceitas: (map['totalReceitas'] as num?)?.toDouble() ?? 0.0,
       totalDespesas: (map['totalDespesas'] as num?)?.toDouble() ?? 0.0,
       saldoFinal: (map['saldoFinal'] as num?)?.toDouble() ?? 0.0,
       // Precisa de lógica para deserializar Map e List de Maps
-      gastosPorCategoria: Map<String, double>.from(map['gastosPorCategoria'] ?? {}),
-      evolucaoSaldoPorPeriodo: List<Map<String, dynamic>>.from(map['evolucaoSaldoPorPeriodo'] ?? []),
+      gastosPorCategoria:
+          Map<String, double>.from(map['gastosPorCategoria'] ?? {}),
+      evolucaoSaldoPorPeriodo:
+          List<Map<String, dynamic>>.from(map['evolucaoSaldoPorPeriodo'] ?? []),
     );
   }
 
@@ -96,7 +99,8 @@ class Relatorio {
       totalDespesas: totalDespesas ?? this.totalDespesas,
       saldoFinal: saldoFinal ?? this.saldoFinal,
       gastosPorCategoria: gastosPorCategoria ?? this.gastosPorCategoria,
-      evolucaoSaldoPorPeriodo: evolucaoSaldoPorPeriodo ?? this.evolucaoSaldoPorPeriodo,
+      evolucaoSaldoPorPeriodo:
+          evolucaoSaldoPorPeriodo ?? this.evolucaoSaldoPorPeriodo,
     );
   }
 

@@ -17,7 +17,8 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
   DateTime? _dataInicioCustomizada;
   DateTime? _dataFimCustomizada;
 
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>(); // Para validação do formulário
+  final GlobalKey<FormState> _formKey =
+      GlobalKey<FormState>(); // Para validação do formulário
 
   @override
   void initState() {
@@ -30,13 +31,15 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
   }
 
   // Função para selecionar data
-  Future<void> _selecionarData(BuildContext context, {required bool isStartDate}) async {
+  Future<void> _selecionarData(BuildContext context,
+      {required bool isStartDate}) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
-      helpText: isStartDate ? 'Selecione a Data de Início' : 'Selecione a Data Fim',
+      helpText:
+          isStartDate ? 'Selecione a Data de Início' : 'Selecione a Data Fim',
     );
     if (picked != null) {
       setState(() {
@@ -54,13 +57,19 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
     if (_tipoRelatorioSelecionado == TipoRelatorio.personalizado) {
       if (_dataInicioCustomizada == null || _dataFimCustomizada == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Selecione as datas para o relatório personalizado.'), backgroundColor: Colors.red),
+          const SnackBar(
+              content:
+                  Text('Selecione as datas para o relatório personalizado.'),
+              backgroundColor: Colors.red),
         );
         return;
       }
       if (_dataFimCustomizada!.isBefore(_dataInicioCustomizada!)) {
-         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('A data final não pode ser anterior à data inicial.'), backgroundColor: Colors.red),
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content:
+                  Text('A data final não pode ser anterior à data inicial.'),
+              backgroundColor: Colors.red),
         );
         return;
       }
@@ -118,7 +127,8 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
                       ),
                       const SizedBox(height: 16),
                       // Seletores de data (visíveis apenas para tipo Personalizado)
-                      if (_tipoRelatorioSelecionado == TipoRelatorio.personalizado)
+                      if (_tipoRelatorioSelecionado ==
+                          TipoRelatorio.personalizado)
                         Column(
                           children: [
                             ListTile(
@@ -128,7 +138,8 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
                                     : 'Início: ${DateFormat('dd/MM/yyyy').format(_dataInicioCustomizada!)}',
                               ),
                               trailing: const Icon(Icons.calendar_today),
-                              onTap: () => _selecionarData(context, isStartDate: true),
+                              onTap: () =>
+                                  _selecionarData(context, isStartDate: true),
                             ),
                             ListTile(
                               title: Text(
@@ -137,12 +148,13 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
                                     : 'Fim: ${DateFormat('dd/MM/yyyy').format(_dataFimCustomizada!)}',
                               ),
                               trailing: const Icon(Icons.calendar_today),
-                              onTap: () => _selecionarData(context, isStartDate: false),
+                              onTap: () =>
+                                  _selecionarData(context, isStartDate: false),
                             ),
                             const SizedBox(height: 16),
                           ],
                         ),
-                      
+
                       ElevatedButton(
                         onPressed: provider.isLoading ? null : _gerarRelatorio,
                         style: ElevatedButton.styleFrom(
@@ -151,8 +163,10 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
                           minimumSize: const Size.fromHeight(50),
                         ),
                         child: provider.isLoading
-                            ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text('Gerar Relatório', style: TextStyle(fontSize: 18)),
+                            ? const CircularProgressIndicator(
+                                color: Colors.white)
+                            : const Text('Gerar Relatório',
+                                style: TextStyle(fontSize: 18)),
                       ),
                     ],
                   ),
@@ -184,7 +198,8 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
             children: [
               Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
               const SizedBox(height: 16),
-              Text('Erro ao gerar relatório: ${provider.erro}', textAlign: TextAlign.center),
+              Text('Erro ao gerar relatório: ${provider.erro}',
+                  textAlign: TextAlign.center),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
@@ -206,7 +221,8 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
     }
 
     final Relatorio relatorio = provider.relatorioAtual!;
-    final NumberFormat currencyFormatter = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
+    final NumberFormat currencyFormatter =
+        NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -215,12 +231,18 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
         children: [
           Text(
             'Resumo do Relatório (${relatorio.tipoRelatorio.descricao})',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
             'Período: ${DateFormat('dd/MM/yyyy').format(relatorio.dataInicio)} - ${DateFormat('dd/MM/yyyy').format(relatorio.dataFim)}',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(color: Colors.grey[600]),
           ),
           const SizedBox(height: 20),
           Card(
@@ -229,10 +251,13 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  _buildSummaryRow('Total de Receitas:', relatorio.totalReceitas, Colors.green),
-                  _buildSummaryRow('Total de Despesas:', relatorio.totalDespesas, Colors.red),
+                  _buildSummaryRow('Total de Receitas:',
+                      relatorio.totalReceitas, Colors.green),
+                  _buildSummaryRow('Total de Despesas:',
+                      relatorio.totalDespesas, Colors.red),
                   Divider(),
-                  _buildSummaryRow('Saldo Final:', relatorio.saldoFinal, relatorio.saldoFinal >= 0 ? Colors.blue : Colors.red),
+                  _buildSummaryRow('Saldo Final:', relatorio.saldoFinal,
+                      relatorio.saldoFinal >= 0 ? Colors.blue : Colors.red),
                 ],
               ),
             ),
@@ -240,31 +265,40 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
           const SizedBox(height: 20),
           Text(
             'Gastos por Categoria',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(context)
+                .textTheme
+                .titleLarge
+                ?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
           if (relatorio.gastosPorCategoria.isEmpty)
             const Text('Nenhum gasto por categoria no período.')
           else
             ListView.builder(
-              shrinkWrap: true, // Importante para ListView aninhado em Column/SingleChildScrollView
-              physics: const NeverScrollableScrollPhysics(), // Desabilita scroll próprio
+              shrinkWrap:
+                  true, // Importante para ListView aninhado em Column/SingleChildScrollView
+              physics:
+                  const NeverScrollableScrollPhysics(), // Desabilita scroll próprio
               itemCount: relatorio.gastosPorCategoria.length,
               itemBuilder: (context, index) {
-                final entry = relatorio.gastosPorCategoria.entries.elementAt(index);
+                final entry =
+                    relatorio.gastosPorCategoria.entries.elementAt(index);
                 return ListTile(
                   title: Text(entry.key),
-                  trailing: Text(currencyFormatter.format(entry.value), style: const TextStyle(fontWeight: FontWeight.w600)),
+                  trailing: Text(currencyFormatter.format(entry.value),
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
                 );
               },
             ),
           const SizedBox(height: 20),
           Text(
             'Evolução do Saldo (Em Desenvolvimento)',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(context)
+                .textTheme
+                .titleLarge
+                ?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
-          // TODO: Adicionar gráficos aqui quando a lógica de evolucaoSaldoPorPeriodo for implementada
           const Center(child: Text('Gráfico de evolução será exibido aqui.')),
         ],
       ),
@@ -272,7 +306,8 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
   }
 
   Widget _buildSummaryRow(String label, double value, Color color) {
-    final NumberFormat currencyFormatter = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
+    final NumberFormat currencyFormatter =
+        NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
