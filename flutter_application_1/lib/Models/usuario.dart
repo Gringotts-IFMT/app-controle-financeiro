@@ -1,6 +1,6 @@
-// lib/Models/usuario.dart (SUBSTITUA TODO O CONTEÚDO ATUAL POR ISSO)
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth; // Alias para evitar conflitos
+import 'package:firebase_auth/firebase_auth.dart'
+    as firebase_auth; // Alias para evitar conflitos
 
 // Classe para configurações do aplicativo (se for salvar no Firestore junto com o usuário)
 class ConfiguracoesApp {
@@ -37,7 +37,8 @@ class Usuario {
   final String? fotoPerfil;
   final DateTime dataCriacaoConta;
   final DateTime ultimoAcesso;
-  final double saldoAtual; // Este saldo será calculado com base nas transações do Firestore, não armazenado diretamente aqui. Pode ser zero por padrão no perfil.
+  final double
+      saldoAtual; // Este saldo será calculado com base nas transações do Firestore, não armazenado diretamente aqui. Pode ser zero por padrão no perfil.
   final ConfiguracoesApp configuracoes; // Usando a classe ConfiguracoesApp
 
   Usuario({
@@ -49,7 +50,8 @@ class Usuario {
     required this.ultimoAcesso,
     this.saldoAtual = 0.0, // Valor padrão inicial
     ConfiguracoesApp? configuracoes, // Pode ser opcional, com um padrão
-  }) : configuracoes = configuracoes ?? ConfiguracoesApp(notificacoesAtivas: true, idioma: 'pt_BR');
+  }) : configuracoes = configuracoes ??
+            ConfiguracoesApp(notificacoesAtivas: true, idioma: 'pt_BR');
 
   // NENHUM CAMPO 'SENHA' AQUI. O Firebase Auth lida com isso.
   // NENHUM MÉTODO 'autenticar', 'alterarSenha' AQUI. O Firebase Auth lida com isso.
@@ -61,13 +63,17 @@ class Usuario {
   factory Usuario.fromFirebaseUser(firebase_auth.User user) {
     return Usuario(
       id: user.uid,
-      nome: user.displayName ?? user.email!.split('@')[0], // Tenta pegar displayName, senão usa parte do email
+      nome: user.displayName ??
+          user.email!.split(
+              '@')[0], // Tenta pegar displayName, senão usa parte do email
       email: user.email!,
       fotoPerfil: user.photoURL,
       dataCriacaoConta: user.metadata.creationTime ?? DateTime.now(),
       ultimoAcesso: user.metadata.lastSignInTime ?? DateTime.now(),
       saldoAtual: 0.0, // Este será atualizado ou calculado dinamicamente
-      configuracoes: ConfiguracoesApp(notificacoesAtivas: true, idioma: 'pt_BR'), // Padrão ao criar do Firebase User
+      configuracoes: ConfiguracoesApp(
+          notificacoesAtivas: true,
+          idioma: 'pt_BR'), // Padrão ao criar do Firebase User
     );
   }
 
@@ -76,14 +82,18 @@ class Usuario {
   factory Usuario.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     final map = doc.data()!; // Pega os dados do documento
     return Usuario(
-      id: doc.id, // O ID do documento no Firestore é o UID do usuário do Firebase Auth
+      id: doc
+          .id, // O ID do documento no Firestore é o UID do usuário do Firebase Auth
       nome: map['nome'] ?? '',
       email: map['email'] ?? '',
       fotoPerfil: map['fotoPerfil'],
-      dataCriacaoConta: (map['dataCriacaoConta'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      ultimoAcesso: (map['ultimoAcesso'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      dataCriacaoConta:
+          (map['dataCriacaoConta'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      ultimoAcesso:
+          (map['ultimoAcesso'] as Timestamp?)?.toDate() ?? DateTime.now(),
       saldoAtual: (map['saldoAtual'] as num?)?.toDouble() ?? 0.0,
-      configuracoes: ConfiguracoesApp.fromMap(map['configuracoes'] as Map<String, dynamic>?),
+      configuracoes: ConfiguracoesApp.fromMap(
+          map['configuracoes'] as Map<String, dynamic>?),
     );
   }
 
@@ -96,7 +106,8 @@ class Usuario {
       'fotoPerfil': fotoPerfil,
       'dataCriacaoConta': Timestamp.fromDate(dataCriacaoConta),
       'ultimoAcesso': Timestamp.fromDate(ultimoAcesso),
-      'saldoAtual': saldoAtual, // Pode ser removido se for sempre calculado dinamicamente
+      'saldoAtual':
+          saldoAtual, // Pode ser removido se for sempre calculado dinamicamente
       'configuracoes': configuracoes.toMap(),
     };
   }
@@ -132,7 +143,8 @@ class Usuario {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is Usuario && other.id == id; // Comparar pelo ID (UID do Firebase)
+    return other is Usuario &&
+        other.id == id; // Comparar pelo ID (UID do Firebase)
   }
 
   @override

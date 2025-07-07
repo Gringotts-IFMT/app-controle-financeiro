@@ -20,6 +20,7 @@ dependencies:
   path: ^1.8.0
   http_parser: ^4.0.0
   provider: ^6.1.5
+  shared_preferences: ^2.2.2
 
    # Adicione ou verifique estas linhas para o Firebase
   

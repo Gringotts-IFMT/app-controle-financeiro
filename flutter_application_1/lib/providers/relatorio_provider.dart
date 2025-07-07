@@ -8,7 +8,7 @@ import '../enums/tipo_transacao.dart'; // O enum TipoTransacao (para filtrar rec
 
 class RelatorioProvider with ChangeNotifier {
   final DatabaseService _databaseService = DatabaseService();
-  
+
   Relatorio? _relatorioAtual; // O último relatório gerado
   bool _isLoading = false;
   String? _erro;
@@ -43,7 +43,8 @@ class RelatorioProvider with ChangeNotifier {
       // Definir o período do relatório com base no tipo
       if (tipo == TipoRelatorio.personalizado) {
         if (dataInicioCustomizada == null || dataFimCustomizada == null) {
-          throw Exception('Para relatório personalizado, datas de início e fim são obrigatórias.');
+          throw Exception(
+              'Para relatório personalizado, datas de início e fim são obrigatórias.');
         }
         inicioPeriodo = dataInicioCustomizada;
         fimPeriodo = dataFimCustomizada;
@@ -53,40 +54,50 @@ class RelatorioProvider with ChangeNotifier {
         switch (tipo) {
           case TipoRelatorio.diario:
             inicioPeriodo = DateTime(now.year, now.month, now.day);
-            fimPeriodo = DateTime(now.year, now.month, now.day, 23, 59, 59); // Fim do dia
+            fimPeriodo = DateTime(
+                now.year, now.month, now.day, 23, 59, 59); // Fim do dia
             break;
           case TipoRelatorio.semanal:
             // Início da semana (domingo)
-            inicioPeriodo = now.subtract(Duration(days: now.weekday)); // now.weekday: 1 (seg) - 7 (dom)
-            inicioPeriodo = DateTime(inicioPeriodo.year, inicioPeriodo.month, inicioPeriodo.day);
+            inicioPeriodo = now.subtract(
+                Duration(days: now.weekday)); // now.weekday: 1 (seg) - 7 (dom)
+            inicioPeriodo = DateTime(
+                inicioPeriodo.year, inicioPeriodo.month, inicioPeriodo.day);
             // Fim da semana (sábado)
             fimPeriodo = inicioPeriodo.add(const Duration(days: 6));
-            fimPeriodo = DateTime(fimPeriodo.year, fimPeriodo.month, fimPeriodo.day, 23, 59, 59);
+            fimPeriodo = DateTime(
+                fimPeriodo.year, fimPeriodo.month, fimPeriodo.day, 23, 59, 59);
             break;
           case TipoRelatorio.mensal:
             inicioPeriodo = DateTime(now.year, now.month, 1);
-            fimPeriodo = DateTime(now.year, now.month + 1, 0, 23, 59, 59); // Último dia do mês
+            fimPeriodo = DateTime(
+                now.year, now.month + 1, 0, 23, 59, 59); // Último dia do mês
             break;
           case TipoRelatorio.anual:
             inicioPeriodo = DateTime(now.year, 1, 1);
-            fimPeriodo = DateTime(now.year, 12, 31, 23, 59, 59); // Último dia do ano
+            fimPeriodo =
+                DateTime(now.year, 12, 31, 23, 59, 59); // Último dia do ano
             break;
           case TipoRelatorio.personalizado: // Já tratado acima
             inicioPeriodo = DateTime.now(); // Fallback, não deve acontecer
-            fimPeriodo = DateTime.now();    // Fallback, não deve acontecer
+            fimPeriodo = DateTime.now(); // Fallback, não deve acontecer
             break;
         }
       }
 
       // Buscar as transações do período via DatabaseService
-      final List<FinancialTransaction> transacoesNoPeriodo = 
-          await _databaseService.getTransactionsByDateRange(userId, inicioPeriodo, fimPeriodo); // <--- Novo método necessário no DatabaseService
+      final List<FinancialTransaction> transacoesNoPeriodo =
+          await _databaseService.getTransactionsByDateRange(
+              userId,
+              inicioPeriodo,
+              fimPeriodo); // <--- Novo método necessário no DatabaseService
 
       // Processar os dados das transações
       double totalReceitas = 0.0;
       double totalDespesas = 0.0;
       Map<String, double> gastosPorCategoria = {};
-      List<Map<String, dynamic>> evolucaoSaldoPorPeriodo = []; // Mais complexo de calcular
+      List<Map<String, dynamic>> evolucaoSaldoPorPeriodo =
+          []; // Mais complexo de calcular
 
       // Calcular totais e gastos por categoria
       for (var transacao in transacoesNoPeriodo) {
@@ -104,10 +115,8 @@ class RelatorioProvider with ChangeNotifier {
 
       final saldoFinal = totalReceitas - totalDespesas;
 
-      // TODO: Implementar lógica para evolucaoSaldoPorPeriodo (mais complexo, pode ser feito depois)
       // Para gráficos de linha, você precisaria agrupar por dia/semana/mês e calcular o saldo cumulativo
       // Ex: List<Map<String, dynamic>> evolucaoSaldo = _calcularEvolucaoSaldo(transacoesNoPeriodo, inicioPeriodo, fimPeriodo, tipo);
-
 
       // Criar o objeto Relatorio
       _relatorioAtual = Relatorio(
@@ -123,7 +132,6 @@ class RelatorioProvider with ChangeNotifier {
       );
       _erro = null;
       return _relatorioAtual;
-
     } catch (e) {
       _erro = 'Erro ao gerar relatório: $e';
       print('RelatorioProvider: Erro ao gerar relatório: $e');
