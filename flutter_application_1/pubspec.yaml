@@ -21,11 +21,11 @@ dependencies:
   http_parser: ^4.0.0
   provider: ^6.1.5
   shared_preferences: ^2.2.2
+  fl_chart: ^1.0.0
 
-   # Adicione ou verifique estas linhas para o Firebase
-  
-  firebase_auth: ^4.17.9  # Use a versão mais recente que for compatível
-  
+    # Adicione ou verifique estas linhas para o Firebase
+
+  firebase_auth: ^4.17.9 # Use a versão mais recente que for compatível
 
 dev_dependencies:
   flutter_test:
@@ -37,4 +37,3 @@ flutter:
   assets:
     - assets/images/
     - assets/images/logo.png
- 

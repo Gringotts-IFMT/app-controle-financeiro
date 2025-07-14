@@ -96,13 +96,18 @@ class RelatorioProvider with ChangeNotifier {
       double totalReceitas = 0.0;
       double totalDespesas = 0.0;
       Map<String, double> gastosPorCategoria = {};
-      List<Map<String, dynamic>> evolucaoSaldoPorPeriodo =
-          []; // Mais complexo de calcular
+      Map<String, double> receitasPorCategoria = {};
+      List<Map<String, dynamic>> evolucaoSaldoPorPeriodo = [];
 
-      // Calcular totais e gastos por categoria
+      // Calcular totais, gastos por categoria e receitas por categoria
       for (var transacao in transacoesNoPeriodo) {
         if (transacao.tipo == TipoTransacao.receita) {
           totalReceitas += transacao.value.abs();
+          receitasPorCategoria.update(
+            transacao.category,
+            (value) => value + transacao.value.abs(),
+            ifAbsent: () => transacao.value.abs(),
+          );
         } else {
           totalDespesas += transacao.value.abs();
           gastosPorCategoria.update(
@@ -128,6 +133,7 @@ class RelatorioProvider with ChangeNotifier {
         totalDespesas: totalDespesas,
         saldoFinal: saldoFinal,
         gastosPorCategoria: gastosPorCategoria,
+        receitasPorCategoria: receitasPorCategoria,
         evolucaoSaldoPorPeriodo: evolucaoSaldoPorPeriodo, // Por enquanto, vazio
       );
       _erro = null;

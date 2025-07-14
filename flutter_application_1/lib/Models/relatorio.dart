@@ -18,6 +18,8 @@ class Relatorio {
   // Dados para gráficos (simples, podem ser expandidos)
   final Map<String, double>
       gastosPorCategoria; // Ex: {'Alimentação': 150.0, 'Transporte': 80.0}
+  final Map<String, double>
+      receitasPorCategoria; // Ex: {'Salário': 500.0, 'Freelance': 200.0}
   // Para evolução de saldo, você pode ter uma lista de Maps ou objetos mais complexos
   // Ex: [{'date': DateTime, 'saldo': double}, ...]
   final List<Map<String, dynamic>> evolucaoSaldoPorPeriodo;
@@ -33,6 +35,7 @@ class Relatorio {
     required this.totalDespesas,
     required this.saldoFinal,
     this.gastosPorCategoria = const {}, // Valor padrão
+    this.receitasPorCategoria = const {}, // Valor padrão
     this.evolucaoSaldoPorPeriodo = const [], // Valor padrão
   }) : dataGeracao = dataGeracao ?? DateTime.now();
 
@@ -50,9 +53,10 @@ class Relatorio {
       totalReceitas: (map['totalReceitas'] as num?)?.toDouble() ?? 0.0,
       totalDespesas: (map['totalDespesas'] as num?)?.toDouble() ?? 0.0,
       saldoFinal: (map['saldoFinal'] as num?)?.toDouble() ?? 0.0,
-      // Precisa de lógica para deserializar Map e List de Maps
       gastosPorCategoria:
           Map<String, double>.from(map['gastosPorCategoria'] ?? {}),
+      receitasPorCategoria:
+          Map<String, double>.from(map['receitasPorCategoria'] ?? {}),
       evolucaoSaldoPorPeriodo:
           List<Map<String, dynamic>>.from(map['evolucaoSaldoPorPeriodo'] ?? []),
     );
@@ -70,6 +74,7 @@ class Relatorio {
       'totalDespesas': totalDespesas,
       'saldoFinal': saldoFinal,
       'gastosPorCategoria': gastosPorCategoria,
+      'receitasPorCategoria': receitasPorCategoria,
       'evolucaoSaldoPorPeriodo': evolucaoSaldoPorPeriodo,
     };
   }
@@ -86,6 +91,7 @@ class Relatorio {
     double? totalDespesas,
     double? saldoFinal,
     Map<String, double>? gastosPorCategoria,
+    Map<String, double>? receitasPorCategoria,
     List<Map<String, dynamic>>? evolucaoSaldoPorPeriodo,
   }) {
     return Relatorio(
@@ -99,6 +105,7 @@ class Relatorio {
       totalDespesas: totalDespesas ?? this.totalDespesas,
       saldoFinal: saldoFinal ?? this.saldoFinal,
       gastosPorCategoria: gastosPorCategoria ?? this.gastosPorCategoria,
+      receitasPorCategoria: receitasPorCategoria ?? this.receitasPorCategoria,
       evolucaoSaldoPorPeriodo:
           evolucaoSaldoPorPeriodo ?? this.evolucaoSaldoPorPeriodo,
     );

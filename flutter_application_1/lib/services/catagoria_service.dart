@@ -1,7 +1,67 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:controle_financeiro/Models/categoria.dart';
+import '../enums/tipo_transacao.dart';
 
 class CategoriaService {
+  Future<List<Categoria>> getCategoriasPorTipo(TipoTransacao tipo,
+      {int? idUsuario}) async {
+    // Busca categorias padrão
+    final padraoSnapshot = await _firestore
+        .collection('categorias')
+        .where('padrao', isEqualTo: true)
+        .get();
+    final categoriasPadrao = padraoSnapshot.docs
+        .map((doc) => Categoria.fromMap(doc.data(), doc.id))
+        .toList();
+
+    // Busca categorias do usuário (se idUsuario informado)
+    List<Categoria> categoriasUsuario = [];
+    if (idUsuario != null) {
+      final usuarioSnapshot = await _firestore
+          .collection('categorias')
+          .where('idUsuario', isEqualTo: idUsuario)
+          .get();
+      categoriasUsuario = usuarioSnapshot.docs
+          .map((doc) => Categoria.fromMap(doc.data(), doc.id))
+          .toList();
+    }
+
+    final todas = [...categoriasPadrao, ...categoriasUsuario];
+    if (tipo == TipoTransacao.despesa) {
+      return todas.where((cat) => _isCategoriaDespesa(cat)).toList();
+    } else {
+      return todas.where((cat) => _isCategoriaReceita(cat)).toList();
+    }
+  }
+
+  bool _isCategoriaDespesa(Categoria cat) {
+    // Pode ajustar para usar um campo tipo, ou filtrar por nome
+    const nomesDespesas = [
+      'Alimentação',
+      'Transporte',
+      'Lazer',
+      'Moradia',
+      'Saúde',
+      'Educação',
+      'Vestuário',
+      'Casa',
+      'Outros'
+    ];
+    return nomesDespesas.contains(cat.nome);
+  }
+
+  bool _isCategoriaReceita(Categoria cat) {
+    const nomesReceitas = [
+      'Salário',
+      'Freelance',
+      'Investimentos',
+      'Presente',
+      'Reembolso',
+      'Outros'
+    ];
+    return nomesReceitas.contains(cat.nome);
+  }
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Criar categorias padrão no primeiro uso

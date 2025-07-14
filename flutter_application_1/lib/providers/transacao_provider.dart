@@ -7,14 +7,15 @@ import '../models/transaction.dart'; // Importa o modelo da transação
 import '../enums/tipo_transacao.dart'; // Importa o enum TipoTransacao
 import '../services/database_service.dart'; // <--- Adicionar esta importação
 
-
 class TransacaoProvider with ChangeNotifier {
   List<FinancialTransaction> _transacoes = [];
   bool _isLoading = false;
-  String? _erro; // Renomeado para _erro para consistência com MetaEconomiaProvider
+  String?
+      _erro; // Renomeado para _erro para consistência com MetaEconomiaProvider
   // StreamSubscription<List<FinancialTransaction>>? _transactionsSubscription; // Opcional se for usar stream direto no provider
 
-  final DatabaseService _databaseService = DatabaseService(); // <--- Instância do DatabaseService
+  final DatabaseService _databaseService =
+      DatabaseService(); // <--- Instância do DatabaseService
 
   List<FinancialTransaction> get transacoes => _transacoes;
   bool get isLoading => _isLoading;
@@ -29,23 +30,28 @@ class TransacaoProvider with ChangeNotifier {
   // }
 
   // Receitas e despesas (baseado na propriedade 'isExpense' do modelo)
-  List<FinancialTransaction> get receitas => _transacoes.where((t) => t.tipo == TipoTransacao.receita).toList();
-  List<FinancialTransaction> get despesas => _transacoes.where((t) => t.tipo == TipoTransacao.despesa).toList();
+  List<FinancialTransaction> get receitas =>
+      _transacoes.where((t) => t.tipo == TipoTransacao.receita).toList();
+  List<FinancialTransaction> get despesas =>
+      _transacoes.where((t) => t.tipo == TipoTransacao.despesa).toList();
 
   // Calcular saldo total
   double get saldoTotal {
-    double totalReceitas = receitas.fold(0, (sum, t) => sum + t.value.abs()); // Usar abs() caso valor seja salvo negativo
+    double totalReceitas = receitas.fold(
+        0,
+        (sum, t) =>
+            sum + t.value.abs()); // Usar abs() caso valor seja salvo negativo
     double totalDespesas = despesas.fold(0, (sum, t) => sum + t.value.abs());
     return totalReceitas - totalDespesas;
   }
 
   // Total por tipo
   double getTotalPorTipo(TipoTransacao tipo) {
-    return _transacoes
-        .where((t) => t.tipo == tipo)
-        .fold(0.0, (sum, t) => sum + t.value.abs()); // Use abs() para garantir soma positiva
+    return _transacoes.where((t) => t.tipo == tipo).fold(
+        0.0,
+        (sum, t) =>
+            sum + t.value.abs()); // Use abs() para garantir soma positiva
   }
-
 
   // Carregar transações (usado em main.dart no StreamBuilder)
   Future<void> carregarTransacoes() async {
@@ -59,7 +65,8 @@ class TransacaoProvider with ChangeNotifier {
     }
     try {
       // Chama o DatabaseService para buscar todas as transações do userId
-      _transacoes = await _databaseService.getAllTransactions(userId); // <--- Chama o DatabaseService
+      _transacoes = await _databaseService
+          .getAllTransactions(userId); // <--- Chama o DatabaseService
       _ordenarTransacoes(); // Adiciona a ordenação
       _erro = null;
     } catch (e) {
@@ -72,7 +79,8 @@ class TransacaoProvider with ChangeNotifier {
 
   // Adicionar transação - usando seu modelo
   // O nome do método deve ser 'addTransaction' ou 'adicionarTransacao' consistentemente
-  Future<bool> addTransaction(FinancialTransaction transaction) async { // Retorna bool para indicar sucesso/falha
+  Future<bool> addTransaction(FinancialTransaction transaction) async {
+    // Retorna bool para indicar sucesso/falha
     _setLoading(true);
     final userId = currentUserId; // Obtém o userId do Firebase Auth
     if (userId == null) {
@@ -83,7 +91,8 @@ class TransacaoProvider with ChangeNotifier {
     try {
       // Cria uma cópia da transação COM o userId antes de enviar ao DatabaseService
       final transactionWithUserId = transaction.copyWith(id: userId);
-      await _databaseService.addTransaction(transactionWithUserId, userId); // <--- Chama o DatabaseService
+      await _databaseService.addTransaction(
+          transactionWithUserId, userId); // <--- Chama o DatabaseService
       _erro = null;
       // Após adicionar, recarregar as transações para atualizar a lista
       await carregarTransacoes();
@@ -98,7 +107,8 @@ class TransacaoProvider with ChangeNotifier {
   }
 
   // Remover transação
-  Future<bool> removerTransacao(String id) async { // Retorna bool
+  Future<bool> removerTransacao(String id) async {
+    // Retorna bool
     _setLoading(true);
     final userId = currentUserId; // Obtém o userId do Firebase Auth
     if (userId == null) {
@@ -107,7 +117,8 @@ class TransacaoProvider with ChangeNotifier {
       return false; // Falha
     }
     try {
-      await _databaseService.deleteTransaction(id, userId); // <--- Chama o DatabaseService
+      await _databaseService.deleteTransaction(
+          id, userId); // <--- Chama o DatabaseService
       _erro = null;
       // Após remover, recarregar as transações
       await carregarTransacoes();
@@ -123,7 +134,8 @@ class TransacaoProvider with ChangeNotifier {
 
   // Método para ordenar transações
   void _ordenarTransacoes() {
-    _transacoes.sort((a, b) => b.date.compareTo(a.date)); // Mais recente primeiro
+    _transacoes
+        .sort((a, b) => b.date.compareTo(a.date)); // Mais recente primeiro
   }
 
   // Método auxiliar para setar loading e notificar
@@ -151,6 +163,7 @@ class TransacaoProvider with ChangeNotifier {
       return Stream.value([]); // Retorna um stream vazio se não há userId
     }
     // Chama o DatabaseService para obter o stream filtrado por isExpense e userId
-    return _databaseService.getTransactions(isExpense, userId); // <--- Chama o DatabaseService
+    return _databaseService.getTransactions(
+        isExpense, userId); // <--- Chama o DatabaseService
   }
 }

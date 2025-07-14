@@ -5,6 +5,7 @@ import 'package:intl/intl.dart'; // Para formatação de data
 import '../providers/transacao_provider.dart';
 import '../models/transaction.dart';
 import '../enums/tipo_transacao.dart';
+import '../services/catagoria_service.dart';
 // import '../Models/usuario.dart'; // Certifique-se de que este import está correto
 
 class TransacaoFormScreen extends StatefulWidget {
@@ -29,23 +30,31 @@ class _TransacaoFormScreenState extends State<TransacaoFormScreen> {
   String _categoriaSelecionada = 'Alimentação';
   DateTime _dataSelecionada = DateTime.now(); // Data padrão atual
 
-  final List<String> _categorias = [
-    'Alimentação',
-    'Transporte',
-    'Lazer',
-    'Saúde',
-    'Educação',
-    'Casa',
-    'Outros'
-  ];
+  List<String> _categorias = [];
+  bool _carregandoCategorias = true;
 
   @override
   void initState() {
     super.initState();
-    // Se você tiver o isExpenseInitial no construtor e quiser usá-lo:
-    // if (widget.isExpenseInitial != null) {
-    //   _tipoSelecionado = widget.isExpenseInitial! ? TipoTransacao.despesa : TipoTransacao.receita;
-    // }
+    _buscarCategorias();
+  }
+
+  Future<void> _buscarCategorias() async {
+    setState(() => _carregandoCategorias = true);
+    final categoriaService = CategoriaService();
+    int? idUsuario;
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null && user.uid.isNotEmpty) {
+      // Se o idUsuario for String, converta conforme seu modelo
+      idUsuario = int.tryParse(user.uid) ?? null;
+    }
+    final categorias = await categoriaService
+        .getCategoriasPorTipo(_tipoSelecionado, idUsuario: idUsuario);
+    setState(() {
+      _categorias = categorias.map((cat) => cat.nome).toList();
+      _categoriaSelecionada = _categorias.isNotEmpty ? _categorias.first : '';
+      _carregandoCategorias = false;
+    });
   }
 
   @override
@@ -198,6 +207,7 @@ class _TransacaoFormScreenState extends State<TransacaoFormScreen> {
                               setState(() {
                                 _tipoSelecionado = value!;
                               });
+                              _buscarCategorias();
                             },
                             activeColor: tipo.cor,
                           ),
@@ -266,31 +276,35 @@ class _TransacaoFormScreenState extends State<TransacaoFormScreen> {
             const SizedBox(height: 16),
 
             // Dropdown Categoria
-            DropdownButtonFormField<String>(
-              value: _categoriaSelecionada,
-              decoration: const InputDecoration(
-                labelText: 'Categoria',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.category),
-              ),
-              items: _categorias.map((categoria) {
-                return DropdownMenuItem(
-                  value: categoria,
-                  child: Text(categoria),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  _categoriaSelecionada = value!;
-                });
-              },
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Selecione uma categoria';
-                }
-                return null;
-              },
-            ),
+            _carregandoCategorias
+                ? const Center(child: CircularProgressIndicator())
+                : DropdownButtonFormField<String>(
+                    value: _categoriaSelecionada.isNotEmpty
+                        ? _categoriaSelecionada
+                        : null,
+                    decoration: const InputDecoration(
+                      labelText: 'Categoria',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.category),
+                    ),
+                    items: _categorias.map((categoria) {
+                      return DropdownMenuItem(
+                        value: categoria,
+                        child: Text(categoria),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _categoriaSelecionada = value!;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Selecione uma categoria';
+                      }
+                      return null;
+                    },
+                  ),
 
             const SizedBox(height: 32),
 

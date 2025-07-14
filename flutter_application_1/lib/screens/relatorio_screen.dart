@@ -4,6 +4,8 @@ import 'package:intl/intl.dart'; // Para formatação de datas e moedas
 import '../providers/relatorio_provider.dart';
 import '../models/relatorio.dart';
 import '../enums/tipo_relatorio.dart';
+import '../widgets/gastos_por_categoria_pie_chart.dart';
+import '../widgets/receitas_por_categoria_pie_chart.dart';
 
 class RelatorioScreen extends StatefulWidget {
   const RelatorioScreen({super.key});
@@ -230,7 +232,7 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Resumo do Relatório (${relatorio.tipoRelatorio.descricao})',
+            'Balancete (${relatorio.tipoRelatorio.descricao})',
             style: Theme.of(context)
                 .textTheme
                 .headlineSmall
@@ -264,7 +266,7 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
           ),
           const SizedBox(height: 20),
           Text(
-            'Gastos por Categoria',
+            'Relatório de Gastos por categoria',
             style: Theme.of(context)
                 .textTheme
                 .titleLarge
@@ -273,12 +275,10 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
           const SizedBox(height: 10),
           if (relatorio.gastosPorCategoria.isEmpty)
             const Text('Nenhum gasto por categoria no período.')
-          else
+          else ...[
             ListView.builder(
-              shrinkWrap:
-                  true, // Importante para ListView aninhado em Column/SingleChildScrollView
-              physics:
-                  const NeverScrollableScrollPhysics(), // Desabilita scroll próprio
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
               itemCount: relatorio.gastosPorCategoria.length,
               itemBuilder: (context, index) {
                 final entry =
@@ -290,16 +290,30 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
                 );
               },
             ),
+            const SizedBox(height: 16),
+            Text(
+              'Gráfico de Gastos por Categoria',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            GastosPorCategoriaPieChart(
+                gastosPorCategoria: relatorio.gastosPorCategoria),
+          ],
           const SizedBox(height: 20),
           Text(
-            'Evolução do Saldo (Em Desenvolvimento)',
+            'Gráfico de Receitas',
             style: Theme.of(context)
                 .textTheme
                 .titleLarge
                 ?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
-          const Center(child: Text('Gráfico de evolução será exibido aqui.')),
+          ReceitasPorCategoriaPieChart(
+            receitasPorCategoria: relatorio.receitasPorCategoria,
+          ),
         ],
       ),
     );
