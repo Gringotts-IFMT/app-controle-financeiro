@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart'; // Para formatação de datas e moedas
 import '../providers/relatorio_provider.dart';
-import '../models/relatorio.dart';
+import '../Models/relatorio.dart';
 import '../enums/tipo_relatorio.dart';
 import '../widgets/gastos_por_categoria_pie_chart.dart';
 import '../widgets/receitas_por_categoria_pie_chart.dart';

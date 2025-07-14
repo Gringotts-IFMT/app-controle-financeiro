@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 // import 'package:firebase_auth/firebase_auth.dart'; // Importar FirebaseAuth
 
-import '../models/transaction.dart';
+import '../Models/transaction.dart';
 // import '../services/database_service.dart';
 // import '../widgets/transaction_form.dart';
 import '../widgets/transaction_list.dart';

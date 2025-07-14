@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/meta_economia_provider.dart';
-import '../models/meta_economia.dart';
+import '../Models/meta_economia.dart';
 import '../enums/status_meta_economia.dart';
 import 'package:intl/intl.dart';
 import 'package:controle_financeiro/screens/meta_form_screen.dart'; // Importa a tela do formulário de meta

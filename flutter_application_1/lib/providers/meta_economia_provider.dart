@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart'; // <--- Importante: Para obter o ID do usuário
-import '../models/meta_economia.dart';
+import '../Models/meta_economia.dart';
 import '../enums/status_meta_economia.dart';
 import '../services/database_service.dart'; // Seu DatabaseService será ajustado em seguida
 // import 'package:controle_financeiro/Models/usuario.dart'; // Opcional, se precisar referenciar o modelo do Usuario aqui.

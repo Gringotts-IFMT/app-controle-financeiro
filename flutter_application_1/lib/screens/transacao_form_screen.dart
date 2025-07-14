@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // <--- Adicionado: Para obter o userId
 import 'package:intl/intl.dart'; // Para formatação de data
 import '../providers/transacao_provider.dart';
-import '../models/transaction.dart';
+import '../Models/transaction.dart';
 import '../enums/tipo_transacao.dart';
 import '../services/categoria_service.dart';
 // import '../Models/usuario.dart'; // Certifique-se de que este import está correto

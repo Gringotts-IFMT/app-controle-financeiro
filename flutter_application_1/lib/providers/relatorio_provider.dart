@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Para obter o userId
 import '../services/database_service.dart'; // Para buscar transações
-import '../models/relatorio.dart'; // O modelo de relatório
-import '../models/transaction.dart'; // O modelo de transação
+import '../Models/relatorio.dart'; // O modelo de relatório
+import '../Models/transaction.dart'; // O modelo de transação
 import '../enums/tipo_relatorio.dart'; // O enum TipoRelatorio
 import '../enums/tipo_transacao.dart'; // O enum TipoTransacao (para filtrar receitas/despesas)
 

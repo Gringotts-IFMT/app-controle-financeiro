@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 
-import '../models/transaction.dart';
+import '../Models/transaction.dart';
 // import '../services/database_service.dart'; // Certifique-se de que este import está correto
 // import '../widgets/transaction_form.dart';
 import '../widgets/transaction_list.dart';

@@ -1,7 +1,7 @@
 // lib/services/database_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/transaction.dart';
-import '../models/meta_economia.dart';
+import '../Models/transaction.dart';
+import '../Models/meta_economia.dart';
 import '../enums/status_meta_economia.dart'; // Importe este enum se for usado em regras de status
 // import '../Models/usuario.dart'; // Importe se você for gerenciar perfis de usuários no Firestore
 
@@ -293,24 +293,25 @@ class DatabaseService {
     }
   }
 
-   // Obter transações por intervalo de datas para um usuário específico
-Future<List<FinancialTransaction>> getTransactionsByDateRange(
-    String userId, DateTime startDate, DateTime endDate) async {
-  try {
-    final querySnapshot = await _firestore
-        .collection(_transactionsCollection)
-        .where('userId', isEqualTo: userId)
-        .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
-        .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endDate))
-        .orderBy('date', descending: true) // Ou ascendente, dependendo da necessidade
-        .get();
+  // Obter transações por intervalo de datas para um usuário específico
+  Future<List<FinancialTransaction>> getTransactionsByDateRange(
+      String userId, DateTime startDate, DateTime endDate) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection(_transactionsCollection)
+          .where('userId', isEqualTo: userId)
+          .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
+          .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endDate))
+          .orderBy('date',
+              descending: true) // Ou ascendente, dependendo da necessidade
+          .get();
 
-    return querySnapshot.docs
-        .map((doc) => FinancialTransaction.fromMap(doc.data(), doc.id))
-        .toList();
-  } catch (e) {
-    print('DatabaseService: Erro ao buscar transações por data: $e');
-    rethrow;
+      return querySnapshot.docs
+          .map((doc) => FinancialTransaction.fromMap(doc.data(), doc.id))
+          .toList();
+    } catch (e) {
+      print('DatabaseService: Erro ao buscar transações por data: $e');
+      rethrow;
+    }
   }
-}
 }

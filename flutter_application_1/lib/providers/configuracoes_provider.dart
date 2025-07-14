@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/configuracoesApp.dart';
+import '../Models/configuracoesApp.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class ConfiguracoesProvider with ChangeNotifier {

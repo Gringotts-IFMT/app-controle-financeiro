@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../models/meta_economia.dart'; // Ajuste o caminho para usar 'models' (minúsculo)
+import '../../Models/meta_economia.dart'; // Ajuste o caminho para usar 'Models' (maiúsculo)
 import '../../providers/meta_economia_provider.dart'; // Ajuste o caminho se necessário
 import '../../enums/status_meta_economia.dart'; // Importe o enum de status
 import 'package:intl/intl.dart'; // Para formatação de datas.

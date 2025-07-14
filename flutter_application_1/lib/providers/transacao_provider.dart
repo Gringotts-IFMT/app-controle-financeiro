@@ -3,7 +3,7 @@
 import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart'; // <--- Adicionar esta importação
-import '../models/transaction.dart'; // Importa o modelo da transação
+import '../Models/transaction.dart'; // Importa o modelo da transação
 import '../enums/tipo_transacao.dart'; // Importa o enum TipoTransacao
 import '../services/database_service.dart'; // <--- Adicionar esta importação
 
