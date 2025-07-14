@@ -1,3 +1,4 @@
+import '../enums/tipo_transacao.dart';
 import 'package:controle_financeiro/providers/transacao_provider.dart';
 import 'package:controle_financeiro/screens/transacao_form_screen.dart';
 import 'package:flutter/material.dart';
@@ -42,8 +43,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
         ),
         // Passa isExpense para o formulário se ele for lidar com ambos os tipos
         // Se TransacaoFormScreen tem RadioListTile, pode ser const TransacaoFormScreen()
-        child:
-            const TransacaoFormScreen(), // Assuming TransacaoFormScreen handles type selection
+        child: TransacaoFormScreen(tipoInicial: TipoTransacao.receita),
       ),
     );
   }

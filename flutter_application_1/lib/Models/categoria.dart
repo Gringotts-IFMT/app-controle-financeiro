@@ -5,7 +5,8 @@ class Categoria {
   final String icon;
   final String cor;
   final bool padrao;
-  final int? idUsuario;
+  final String? idUsuario;
+  final String tipo; // 'despesa' ou 'receita'
 
   Categoria({
     this.id,
@@ -15,6 +16,7 @@ class Categoria {
     required this.cor,
     required this.padrao,
     this.idUsuario,
+    required this.tipo,
   });
 
   Map<String, dynamic> toMap() {
@@ -25,6 +27,7 @@ class Categoria {
       'cor': cor,
       'padrao': padrao,
       'idUsuario': idUsuario,
+      'tipo': tipo,
     };
   }
 
@@ -37,6 +40,7 @@ class Categoria {
       cor: map['cor'] ?? '#2196F3',
       padrao: map['padrao'] ?? false,
       idUsuario: map['idUsuario'],
+      tipo: map['tipo'] ?? 'despesa',
     );
   }
 
@@ -47,7 +51,8 @@ class Categoria {
     String? icon,
     String? cor,
     bool? padrao,
-    int? idUsuario,
+    String? idUsuario,
+    String? tipo,
   }) {
     return Categoria(
       id: id ?? this.id,
@@ -57,6 +62,7 @@ class Categoria {
       cor: cor ?? this.cor,
       padrao: padrao ?? this.padrao,
       idUsuario: idUsuario ?? this.idUsuario,
+      tipo: tipo ?? this.tipo,
     );
   }
 }

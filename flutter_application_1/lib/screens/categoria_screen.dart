@@ -1,12 +1,13 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:controle_financeiro/Models/categoria.dart';
-import 'package:controle_financeiro/services/catagoria_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:controle_financeiro/services/categoria_service.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/form_categoria.dart';
 
 class CategoriaScreen extends StatefulWidget {
-  final int? idUsuario;
+  final String? idUsuario;
 
   const CategoriaScreen({super.key, this.idUsuario});
 
@@ -33,14 +34,20 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
         child: CategoryForm(
-          onSubmit: (nome, descricao, icon, cor) async {
+          onSubmit: (nome, descricao, icon, cor, tipo) async {
+            final userId = FirebaseAuth.instance.currentUser?.uid;
+            String? idUsuario;
+            if (userId != null && userId.isNotEmpty) {
+              idUsuario = userId;
+            }
             final categoria = Categoria(
               nome: nome,
               descricao: descricao,
               icon: icon,
               cor: cor,
               padrao: false,
-              idUsuario: widget.idUsuario,
+              idUsuario: idUsuario,
+              tipo: tipo,
             );
             await _categoriaService.adicionarCategoria(categoria);
             Navigator.pop(context);
@@ -63,12 +70,13 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
         ),
         child: CategoryForm(
           categoria: categoria,
-          onSubmit: (nome, descricao, icon, cor) async {
+          onSubmit: (nome, descricao, icon, cor, tipo) async {
             final categoriaAtualizada = categoria.copyWith(
               nome: nome,
               descricao: descricao,
               icon: icon,
               cor: cor,
+              tipo: tipo,
             );
             await _categoriaService.atualizarCategoria(
                 categoria.id!, categoriaAtualizada);
@@ -141,7 +149,7 @@ class _CategoriaScreenState extends State<CategoriaScreen> {
         foregroundColor: Colors.white,
       ),
       body: StreamBuilder<List<Categoria>>(
-        stream: _categoriaService.getCategorias(widget.idUsuario),
+        stream: _categoriaService.getCategoriasUsuarioOuPadrao(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

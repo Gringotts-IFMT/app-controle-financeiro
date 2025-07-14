@@ -1,10 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:controle_financeiro/Models/categoria.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../enums/tipo_transacao.dart';
 
 class CategoriaService {
+  Stream<List<Categoria>> getCategoriasUsuarioOuPadrao() {
+    final user = FirebaseAuth.instance.currentUser;
+    String? idUsuario;
+    if (user != null && user.uid.isNotEmpty) {
+      idUsuario = user.uid;
+    }
+    return getCategorias(idUsuario);
+  }
+
   Future<List<Categoria>> getCategoriasPorTipo(TipoTransacao tipo,
-      {int? idUsuario}) async {
+      {String? idUsuario}) async {
     // Busca categorias padrão
     final padraoSnapshot = await _firestore
         .collection('categorias')
@@ -27,39 +37,8 @@ class CategoriaService {
     }
 
     final todas = [...categoriasPadrao, ...categoriasUsuario];
-    if (tipo == TipoTransacao.despesa) {
-      return todas.where((cat) => _isCategoriaDespesa(cat)).toList();
-    } else {
-      return todas.where((cat) => _isCategoriaReceita(cat)).toList();
-    }
-  }
-
-  bool _isCategoriaDespesa(Categoria cat) {
-    // Pode ajustar para usar um campo tipo, ou filtrar por nome
-    const nomesDespesas = [
-      'Alimentação',
-      'Transporte',
-      'Lazer',
-      'Moradia',
-      'Saúde',
-      'Educação',
-      'Vestuário',
-      'Casa',
-      'Outros'
-    ];
-    return nomesDespesas.contains(cat.nome);
-  }
-
-  bool _isCategoriaReceita(Categoria cat) {
-    const nomesReceitas = [
-      'Salário',
-      'Freelance',
-      'Investimentos',
-      'Presente',
-      'Reembolso',
-      'Outros'
-    ];
-    return nomesReceitas.contains(cat.nome);
+    final tipoStr = tipo == TipoTransacao.despesa ? 'despesa' : 'receita';
+    return todas.where((cat) => cat.tipo == tipoStr).toList();
   }
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -74,49 +53,56 @@ class CategoriaService {
           icon: 'restaurant',
           cor: '#FF9800',
           padrao: true,
-          idUsuario: null),
+          idUsuario: null,
+          tipo: 'despesa'),
       Categoria(
           nome: 'Transporte',
           descricao: 'Gastos com transporte público, combustível',
           icon: 'directions_car',
           cor: '#2196F3',
           padrao: true,
-          idUsuario: null),
+          idUsuario: null,
+          tipo: 'despesa'),
       Categoria(
           nome: 'Lazer',
           descricao: 'Entretenimento, cinema, jogos',
           icon: 'movie',
           cor: '#9C27B0',
           padrao: true,
-          idUsuario: null),
+          idUsuario: null,
+          tipo: 'despesa'),
       Categoria(
           nome: 'Moradia',
           descricao: 'Aluguel, contas da casa, manutenção',
           icon: 'home',
           cor: '#795548',
           padrao: true,
-          idUsuario: null),
+          idUsuario: null,
+          tipo: 'despesa'),
       Categoria(
           nome: 'Saúde',
           descricao: 'Medicamentos, consultas médicas',
           icon: 'local_hospital',
           cor: '#F44336',
           padrao: true,
-          idUsuario: null),
+          idUsuario: null,
+          tipo: 'despesa'),
       Categoria(
           nome: 'Educação',
           descricao: 'Cursos, livros, material escolar',
           icon: 'school',
           cor: '#3F51B5',
           padrao: true,
-          idUsuario: null),
+          idUsuario: null,
+          tipo: 'despesa'),
       Categoria(
           nome: 'Vestuário',
           descricao: 'Roupas, calçados, acessórios',
           icon: 'checkroom',
           cor: '#E91E63',
           padrao: true,
-          idUsuario: null),
+          idUsuario: null,
+          tipo: 'despesa'),
       // Categorias de Receitas
       Categoria(
           nome: 'Salário',
@@ -124,42 +110,48 @@ class CategoriaService {
           icon: 'work',
           cor: '#4CAF50',
           padrao: true,
-          idUsuario: null),
+          idUsuario: null,
+          tipo: 'receita'),
       Categoria(
           nome: 'Freelance',
           descricao: 'Trabalhos autônomos',
           icon: 'computer',
           cor: '#00BCD4',
           padrao: true,
-          idUsuario: null),
+          idUsuario: null,
+          tipo: 'receita'),
       Categoria(
           nome: 'Investimentos',
           descricao: 'Rendimentos de investimentos',
           icon: 'trending_up',
           cor: '#607D8B',
           padrao: true,
-          idUsuario: null),
+          idUsuario: null,
+          tipo: 'receita'),
       Categoria(
           nome: 'Presente',
           descricao: 'Dinheiro recebido de presente',
           icon: 'card_giftcard',
           cor: '#FF5722',
           padrao: true,
-          idUsuario: null),
+          idUsuario: null,
+          tipo: 'receita'),
       Categoria(
           nome: 'Reembolso',
           descricao: 'Dinheiro reembolsado',
           icon: 'receipt',
           cor: '#FFC107',
           padrao: true,
-          idUsuario: null),
+          idUsuario: null,
+          tipo: 'receita'),
       Categoria(
           nome: 'Outros',
           descricao: 'Outras receitas',
           icon: 'more_horiz',
           cor: '#9E9E9E',
           padrao: true,
-          idUsuario: null),
+          idUsuario: null,
+          tipo: 'receita'),
     ];
 
     // Verificar se já existem categorias padrão
@@ -187,7 +179,7 @@ class CategoriaService {
   }
 
   // Buscar categorias (padrão + do usuário)
-  Stream<List<Categoria>> getCategorias(int? idUsuario) {
+  Stream<List<Categoria>> getCategorias(String? idUsuario) {
     return _firestore
         .collection('categorias')
         .where('padrao', isEqualTo: true)
@@ -214,7 +206,7 @@ class CategoriaService {
   }
 
   // Buscar apenas categorias do usuário
-  Stream<List<Categoria>> getCategoriasUsuario(int idUsuario) {
+  Stream<List<Categoria>> getCategoriasUsuario(String idUsuario) {
     return _firestore
         .collection('categorias')
         .where('idUsuario', isEqualTo: idUsuario)

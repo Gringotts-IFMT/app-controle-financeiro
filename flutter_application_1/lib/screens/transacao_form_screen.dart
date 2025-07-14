@@ -5,7 +5,7 @@ import 'package:intl/intl.dart'; // Para formatação de data
 import '../providers/transacao_provider.dart';
 import '../models/transaction.dart';
 import '../enums/tipo_transacao.dart';
-import '../services/catagoria_service.dart';
+import '../services/categoria_service.dart';
 // import '../Models/usuario.dart'; // Certifique-se de que este import está correto
 
 class TransacaoFormScreen extends StatefulWidget {
@@ -14,8 +14,9 @@ class TransacaoFormScreen extends StatefulWidget {
   // final bool? isExpenseInitial;
   // const TransacaoFormScreen({super.key, this.isExpenseInitial});
 
-  const TransacaoFormScreen(
-      {super.key}); // Para o caso de não receber parâmetro
+  final TipoTransacao tipoInicial;
+  const TransacaoFormScreen({Key? key, required this.tipoInicial})
+      : super(key: key);
 
   @override
   _TransacaoFormScreenState createState() => _TransacaoFormScreenState();
@@ -26,7 +27,7 @@ class _TransacaoFormScreenState extends State<TransacaoFormScreen> {
   final _descricaoController = TextEditingController();
   final _valorController = TextEditingController();
 
-  TipoTransacao _tipoSelecionado = TipoTransacao.despesa;
+  late TipoTransacao _tipoSelecionado;
   String _categoriaSelecionada = 'Alimentação';
   DateTime _dataSelecionada = DateTime.now(); // Data padrão atual
 
@@ -36,22 +37,25 @@ class _TransacaoFormScreenState extends State<TransacaoFormScreen> {
   @override
   void initState() {
     super.initState();
+    _tipoSelecionado = widget.tipoInicial;
     _buscarCategorias();
   }
 
   Future<void> _buscarCategorias() async {
     setState(() => _carregandoCategorias = true);
     final categoriaService = CategoriaService();
-    int? idUsuario;
+    String? idUsuario;
     final user = FirebaseAuth.instance.currentUser;
     if (user != null && user.uid.isNotEmpty) {
-      // Se o idUsuario for String, converta conforme seu modelo
-      idUsuario = int.tryParse(user.uid) ?? null;
+      idUsuario = user.uid;
     }
+    // Busca todas as categorias do tipo selecionado (padrão + personalizadas)
     final categorias = await categoriaService
         .getCategoriasPorTipo(_tipoSelecionado, idUsuario: idUsuario);
+    final nomesOrdenados = categorias.map((cat) => cat.nome).toList()
+      ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
     setState(() {
-      _categorias = categorias.map((cat) => cat.nome).toList();
+      _categorias = nomesOrdenados;
       _categoriaSelecionada = _categorias.isNotEmpty ? _categorias.first : '';
       _carregandoCategorias = false;
     });

@@ -1,3 +1,4 @@
+import '../enums/tipo_transacao.dart';
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:controle_financeiro/providers/transacao_provider.dart';
@@ -43,8 +44,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
         ),
         // Passa isExpense para o formulário se ele for lidar com ambos os tipos
         // Se TransacaoFormScreen tem RadioListTile, pode ser const TransacaoFormScreen()
-        child:
-            const TransacaoFormScreen(), // Assuming TransacaoFormScreen handles type selection
+        child: TransacaoFormScreen(tipoInicial: TipoTransacao.despesa),
       ),
     );
   }

@@ -154,8 +154,8 @@ class _HomeScreenState extends State<HomeScreen>
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      // Passa o isExpense para o TransacaoFormScreen se ele lidar com isso
-                      builder: (context) => const TransacaoFormScreen(),
+                      builder: (context) => TransacaoFormScreen(
+                          tipoInicial: TipoTransacao.receita),
                     ),
                   );
                   // Opcional: pré-selecionar o tipo na TransacaoFormScreen
@@ -170,8 +170,8 @@ class _HomeScreenState extends State<HomeScreen>
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      // Passa o isExpense para o TransacaoFormScreen se ele lidar com isso
-                      builder: (context) => const TransacaoFormScreen(),
+                      builder: (context) => TransacaoFormScreen(
+                          tipoInicial: TipoTransacao.despesa),
                     ),
                   );
                   // Opcional: pré-selecionar o tipo na TransacaoFormScreen
