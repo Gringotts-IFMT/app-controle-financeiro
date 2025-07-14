@@ -8,6 +8,13 @@ import '../enums/tipo_transacao.dart'; // Importa o enum TipoTransacao
 import '../services/database_service.dart'; // <--- Adicionar esta importação
 
 class TransacaoProvider with ChangeNotifier {
+  void limparDados() {
+    _transacoes = [];
+    _erro = null;
+    _isLoading = false;
+    notifyListeners();
+  }
+
   List<FinancialTransaction> _transacoes = [];
   bool _isLoading = false;
   String?

@@ -7,6 +7,14 @@ import '../services/database_service.dart'; // Seu DatabaseService será ajustad
 // import 'package:controle_financeiro/Models/usuario.dart'; // Opcional, se precisar referenciar o modelo do Usuario aqui.
 
 class MetaEconomiaProvider with ChangeNotifier {
+  void limparDados() {
+    _metas = [];
+    _erro = null;
+    _isLoading = false;
+    _metasSubscription?.cancel();
+    notifyListeners();
+  }
+
   List<MetaEconomia> _metas = [];
   bool _isLoading = false;
   String? _erro;

@@ -4,6 +4,13 @@ import '../Models/configuracoesApp.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class ConfiguracoesProvider with ChangeNotifier {
+  void limparDados() {
+    _config = null;
+    _isLoading = false;
+    _isInitialized = false;
+    notifyListeners();
+  }
+
   ConfiguracoesApp? _config;
   bool _isLoading = false;
   bool _isInitialized = false;

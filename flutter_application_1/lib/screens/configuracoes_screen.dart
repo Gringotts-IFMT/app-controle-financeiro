@@ -1,3 +1,7 @@
+import '../providers/transacao_provider.dart';
+import '../providers/meta_economia_provider.dart';
+import '../providers/relatorio_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/configuracoes_provider.dart';
@@ -11,6 +15,67 @@ class ConfiguracoesScreen extends StatefulWidget {
 }
 
 class _ConfiguracoesScreenState extends State<ConfiguracoesScreen> {
+  void _mostrarDialogReset(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Resetar Configurações'),
+        content: const Text(
+            'Tem certeza que deseja resetar todas as configurações para o padrão?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Provider.of<ConfiguracoesProvider>(context, listen: false)
+                  .resetarConfiguracoes();
+            },
+            child: const Text('Resetar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmarLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar Logout'),
+        content: const Text('Deseja realmente sair do usuário?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              // Limpa dados dos providers
+              Provider.of<TransacaoProvider>(context, listen: false)
+                  .limparDados();
+              Provider.of<MetaEconomiaProvider>(context, listen: false)
+                  .limparDados();
+              Provider.of<RelatorioProvider>(context, listen: false)
+                  .limparDados();
+              Provider.of<ConfiguracoesProvider>(context, listen: false)
+                  .limparDados();
+              await FirebaseAuth.instance.signOut();
+              if (mounted) {
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil('/login', (route) => false);
+              }
+            },
+            child: const Text('Sair'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -175,35 +240,29 @@ class _ConfiguracoesScreenState extends State<ConfiguracoesScreen> {
                   ),
                 ),
               ),
+              // Botão de logout
+              const SizedBox(height: 20),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Center(
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.logout),
+                      label: const Text('Sair do usuário'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.error,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(180, 48),
+                      ),
+                      onPressed: () => _confirmarLogout(context),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         );
       },
-    );
-  }
-
-  void _mostrarDialogReset(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Resetar Configurações'),
-        content: const Text(
-            'Tem certeza que deseja resetar todas as configurações para o padrão?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Provider.of<ConfiguracoesProvider>(context, listen: false)
-                  .resetarConfiguracoes();
-            },
-            child: const Text('Resetar'),
-          ),
-        ],
-      ),
     );
   }
 }

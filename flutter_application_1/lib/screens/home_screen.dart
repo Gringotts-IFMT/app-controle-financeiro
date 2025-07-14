@@ -23,8 +23,11 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-    _tabController =
-        TabController(length: 3, vsync: this); // 3 abas: Todas, Gastos, Ganhos
+    _tabController = TabController(length: 3, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<TransacaoProvider>(context, listen: false)
+          .carregarTransacoes();
+    });
   }
 
   @override

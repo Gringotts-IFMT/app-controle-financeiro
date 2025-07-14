@@ -71,6 +71,29 @@ class MyApp extends StatelessWidget {
                     body: Center(child: CircularProgressIndicator()),
                   );
                 } else if (snapshot.hasData && snapshot.data != null) {
+                  final uid = snapshot.data!.uid;
+                  // Salva o UID anterior em uma variável estática
+                  // e compara para garantir que é um novo login
+                  // (evita reuso de dados do usuário anterior)
+                  // ignore: prefer_const_declarations
+                  const lastUidKey = 'lastUid';
+                  // ignore: prefer_const_declarations
+                  final storage = PageStorage.of(context);
+                  final lastUid =
+                      storage.readState(context, identifier: lastUidKey);
+                  if (lastUid != uid) {
+                    // Limpa os providers
+                    Provider.of<TransacaoProvider>(context, listen: false)
+                        .limparDados();
+                    Provider.of<MetaEconomiaProvider>(context, listen: false)
+                        .limparDados();
+                    Provider.of<RelatorioProvider>(context, listen: false)
+                        .limparDados();
+                    Provider.of<ConfiguracoesProvider>(context, listen: false)
+                        .limparDados();
+                    // Salva o novo UID
+                    storage.writeState(context, uid, identifier: lastUidKey);
+                  }
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     Provider.of<TransacaoProvider>(context, listen: false)
                         .carregarTransacoes();
@@ -79,7 +102,7 @@ class MyApp extends StatelessWidget {
                     Provider.of<ConfiguracoesProvider>(context, listen: false)
                         .carregarConfiguracoes();
                   });
-                  return const MainNavigator();
+                  return MainNavigator(key: ValueKey(uid));
                 } else {
                   return const LoginScreen();
                 }

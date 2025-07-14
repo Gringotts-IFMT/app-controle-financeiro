@@ -7,6 +7,13 @@ import '../enums/tipo_relatorio.dart'; // O enum TipoRelatorio
 import '../enums/tipo_transacao.dart'; // O enum TipoTransacao (para filtrar receitas/despesas)
 
 class RelatorioProvider with ChangeNotifier {
+  void limparDados() {
+    _relatorioAtual = null;
+    _erro = null;
+    _isLoading = false;
+    notifyListeners();
+  }
+
   final DatabaseService _databaseService = DatabaseService();
 
   Relatorio? _relatorioAtual; // O último relatório gerado
